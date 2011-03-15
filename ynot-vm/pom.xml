@@ -1,0 +1,57 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>ynot</groupId>
+		<artifactId>ynot</artifactId>
+		<version>1</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ynot</groupId>
+	<artifactId>ynot-vm</artifactId>
+	<packaging>jar</packaging>
+	<version>${com.ynotscript.version}</version>
+	<name>${pom.artifactId}</name>
+	<url>http://www.ynotscript.com</url>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ynot</groupId>
+			<artifactId>ynot-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ynot</groupId>
+			<artifactId>ynot-impl</artifactId>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>ynot.vm.Launcher</mainClass>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>./lib/</classpathPrefix>
+						</manifest>
+						<manifestEntries>
+							<mode>development</mode>
+							<url>${pom.url}</url>
+							<Class-Path>./ ./config/</Class-Path>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
