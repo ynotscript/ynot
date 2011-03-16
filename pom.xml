@@ -25,6 +25,7 @@
 		<module>ynot-impl</module>
 		<module>ynot-lang</module>
 		<module>ynot-vm</module>
+		<module>ynot-build</module>
 	</modules>
 	<properties>
 		<org.springframework.version>3.0.5.RELEASE</org.springframework.version>
