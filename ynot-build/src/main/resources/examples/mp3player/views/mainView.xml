@@ -1,0 +1,20 @@
+<frame id="myApp" title="myApp" size="i\200,i\200" defaultCloseOperation="i\3">
+	<menuBar>
+		<menu id="a" text="File">
+			<menuItem id="menu1" text="Open"/>
+			<menuItem id="menu2" text="Close"/>
+		</menu>
+		<menu text="Edit">
+			<menuItem id="menu3" text="Configuration"/>
+		</menu>
+	</menuBar>
+	<panel flow="v">
+		<panel flow="h">
+			<button id="button1" text="Run"/>
+			<button id="button2" text="Stop"/>
+		</panel>
+		<panel flow="h">
+			<label id="label1" text="..."/>
+		</panel>
+	</panel>
+</frame>

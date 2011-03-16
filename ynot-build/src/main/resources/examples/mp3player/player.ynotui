@@ -1,0 +1,61 @@
+function("start", {"proxy","method","args"})
+	if([[$method.getName()] = "actionPerformed"])
+		$player := get("player")
+		$mp3 := get("mp3")
+		if ([$mp3 != null])
+			$player.open($mp3)
+			$player.play()
+		end
+	end
+end
+
+function("stop", {"proxy","method","args"})
+	if([[$method.getName()] = "actionPerformed"])
+		$player := get("player")
+		$player.stop()
+	end
+end
+
+function("exit", {"proxy","method","args"})
+	if([[$method.getName()] = "actionPerformed"])
+		bye
+	end
+end
+
+function("openFile", {"proxy","method","args"})
+	if([[$method.getName()] = "actionPerformed"])
+		$chooser := new("JFileChooser",{})
+		$view := get("view")
+		$chooser.showDialog($view, "Ok Go") 
+		$mp3 := $chooser.getSelectedFile()
+		set("mp3", $mp3)	
+	end
+end
+
+#============================================
+
+import("javazoom.jlgui.basicplayer")
+import("java.awt.event")
+
+$player 	:= new("BasicPlayer")
+$view    	:= ui_load("views/mainView.xml")
+
+set("player", $player)
+set("view", $view)
+
+$startBt	:= $view.get("button1")
+$stopBt  	:= $view.get("button2")
+$openMenu	:= $view.get("menu1")
+$exitMenu	:= $view.get("menu2")
+
+$startListener := implement({"ActionListener"}, "start")
+$stopListener := implement({"ActionListener"}, "stop")
+$openFileListener := implement({"ActionListener"}, "openFile")
+$exitListener := implement({"ActionListener"}, "exit")
+
+$startBt.addActionListener($startListener)
+$stopBt.addActionListener($stopListener)
+$openMenu.addActionListener($openFileListener)
+$exitMenu.addActionListener($exitListener)
+
+$view.setVisible(true)

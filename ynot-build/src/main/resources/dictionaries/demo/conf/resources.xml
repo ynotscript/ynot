@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+	<!-- Add you own bean -->
+	<bean id="sysout" 		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+    	<property name="staticField" value="java.lang.System.out"/>
+    </bean>
+    
+	<bean id="fr" class="com.google.api.translate.Language" factory-method="valueOf">
+		<constructor-arg>
+			<value>FRENCH</value>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="en" class="com.google.api.translate.Language" factory-method="valueOf">
+		<constructor-arg>
+			<value>ENGLISH</value>
+		</constructor-arg>
+	</bean>
+ 
+	<bean id="translator" class="com.google.api.translate.Translate"/>
+	
+	<bean id="loadTranslator" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	   <property name="targetObject"><ref bean="translator"/></property>
+	   <property name="targetMethod"><value>setHttpReferrer</value></property>
+	   <property name="arguments" value="http://code.google.com/p/google-api-translate-java/"/>
+	</bean>
+	
+</beans>

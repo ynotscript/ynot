@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:config.properties</value>
+		</property>
+	</bean>
+
+	<bean id="shell" class="ynot.core.entity.Shell" init-method="init">
+		<property name="commandProvider" ref="commandProvider" />
+	</bean>
+
+	<bean id="commandProvider" class="ynot.impl.provider.command.SimpleCommandProvider"
+		init-method="init">
+
+		<property name="requestProvider" ref="requestProvider" />
+
+		<property name="resourceProviders">
+			<list>
+				<ref bean="ynotResourceProvider" />
+				<ref bean="demoResourceProvider" />
+			</list>
+		</property>
+
+		<property name="definitionProviders">
+			<list>
+				<ref bean="ynotDefinitionProvider" />
+				<ref bean="demoDefinitionProvider" />
+			</list>
+		</property>
+
+		<property name="listeners">
+			<list>
+				<ref bean="blockManagerListener" />
+				<ref bean="unlockManagerListener" />				
+			</list>
+		</property>
+	</bean>
+
+	<bean id="requestProvider" class="ynot.impl.provider.request.ScriptRequestProvider">
+		<constructor-arg value="script" />
+		<property name="parser" ref="requestParser" />
+		<property name="script" value="${script}" />
+	</bean>
+
+	<bean id="requestParser"
+		class="ynot.impl.parser.request.RequestParserHandler">
+		<property name="listeners">
+			<list>
+				<bean class="ynot.impl.listener.parser.request.EmbeddedRequestListener"/>
+				<bean class="ynot.impl.listener.parser.request.OperatorWrapperListener"/>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="ynotResourceProvider" class="ynot.impl.provider.resource.SpringResourceProvider">
+		<constructor-arg value="ynot" />
+		<property name="contexts">
+			<list>
+				<bean
+					class="org.springframework.context.support.FileSystemXmlApplicationContext">
+					<constructor-arg value="/${basepath}/dictionaries/ynot/conf/resources.xml" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="demoResourceProvider" class="ynot.impl.provider.resource.SpringResourceProvider">
+		<constructor-arg value="demo" />
+		<property name="contexts">
+			<list>
+				<bean
+					class="org.springframework.context.support.FileSystemXmlApplicationContext">
+					<constructor-arg value="/${basepath}/dictionaries/demo/conf/resources.xml" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="ynotDefinitionProvider"
+		class="ynot.impl.provider.definition.PropertiesDefinitionProvider"
+		init-method="init">
+		<constructor-arg value="ynot" />
+		<property name="properties">
+			<list>
+				<value>${basepath}/dictionaries/ynot/conf/definitions.properties</value>
+			</list>
+		</property>
+		<property name="parser" ref="simpleDefinitionParser" />
+	</bean>
+
+	<bean id="demoDefinitionProvider"
+		class="ynot.impl.provider.definition.PropertiesDefinitionProvider"
+		init-method="init">
+		<constructor-arg value="demo" />
+		<property name="properties">
+			<list>
+				<value>${basepath}/dictionaries/demo/conf/definitions.properties</value>
+			</list>
+		</property>
+		<property name="parser" ref="simpleDefinitionParser" />
+	</bean>
+	
+	<bean id="simpleDefinitionParser" class="ynot.impl.parser.definition.SimpleDefinitionParser" />
+	
+	<bean id="blockManagerListener" class="ynot.impl.listener.provider.command.BlockManager">
+		<property name="openingCommands">
+			<list>
+				<value>ifMethod</value>
+				<value>elseifMethod</value>
+				<value>elseMethod</value>
+				<value>whileMethod</value>
+				<value>forMethod</value>
+				<value>functionMethod</value>
+			</list>
+		</property>
+		<property name="closingCommands">
+			<list>
+				<value>endMethod</value>
+				<value>elseifMethod</value>
+				<value>elseMethod</value>
+			</list>
+		</property>
+	</bean>
+			
+	<bean id="unlockManagerListener" class="ynot.impl.listener.provider.command.UnlockManager">
+		<property name="unlockingCommands">
+			<list>
+				<value>goOut</value>
+			</list>
+		</property>
+	</bean>
+	
+</beans>

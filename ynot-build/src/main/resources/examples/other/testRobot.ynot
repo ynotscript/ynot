@@ -1,0 +1,18 @@
+import("java.awt")
+import("java.awt.event")
+
+$math := static("Math")
+$robot := new("Robot")
+$inputEvent := static("InputEvent")
+$leftClick := $inputEvent.BUTTON1_MASK
+
+for(1..10, "i")
+	$x := [$math.random()] * 1000
+	$x := $x.intValue()
+	$y := [$math.random()] * 700
+	$y := $y.intValue()
+	$robot.mouseMove($x, $y)
+	$robot.mousePress($leftClick)
+	$robot.mouseRelease($leftClick)
+	sleep(1000)
+end

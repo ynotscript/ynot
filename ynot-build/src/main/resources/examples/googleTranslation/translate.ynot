@@ -1,0 +1,15 @@
+import("com.google.api.translate")
+
+$translator := static("Translate")
+
+$lang := static("Language")
+$fr := $lang.FRENCH
+$en := $lang.ENGLISH
+
+echo("Enter the sentence to translate fr => en:")
+$msgToTranslate := readLine()
+
+$outputMsg := $translator.execute($msgToTranslate, $fr, $en)
+echo($outputMsg)
+
+sleep(3000)

@@ -1,0 +1,9 @@
+import("com.thoughtworks.xstream")
+
+$xstream := new("XStream")
+
+$builder := ?builder?
+$xstream.alias("builder", [$builder.getClass()])
+
+$xml := $xstream.toXML($builder)
+echo($xml)

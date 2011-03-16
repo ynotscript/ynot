@@ -1,0 +1,5 @@
+<frame id="colorChooserFrame" title="Choose a color" size="i\200,i\200">
+	<panel flow="v">
+		<colorChooser id="colorChooser"/>
+	</panel>
+</frame>

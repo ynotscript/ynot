@@ -1,0 +1,176 @@
+$equals := "a" = 1
+$notEquals := "a" != 1
+$greater := 3 > 2
+$lesser := 3 < 2
+$greaterOrEquals := 3 >= 2
+$lesserOrEquals := 3 <= 2
+
+echo("$equals -> ${equals}")
+echo("$notEquals -> ${notEquals}")
+echo("$greater -> ${greater}")
+echo("$lesser -> ${lesser}")
+echo("$greaterOrEquals -> ${greaterOrEquals}")
+echo("$lesserOrEquals -> ${lesserOrEquals}")
+
+hello#>#hello
+
+# Displaying date
+$today := date("yyyy/MM/dd HH:mm:ss")
+echo($today)
+
+$integer := static("Integer")
+$i := $integer.parseInt("123")
+++$i 
+echo("${i}")
+
+$sys := static("System")
+$out := $sys.out
+$out.println("hola")
+
+$a := 3
+$b := 4
+
+++$a
+echo("${a}")
+$a++
+echo("${a}")
+--$b
+echo("${b}")
+$b--
+echo("${b}")
+
+$c := $a * $b
+echo("${c}")
+
+$c := $a / $b
+echo("${c}")
+
+$c := $a % $b
+echo("${c}")
+
+$c := 2 ^ 3
+echo("${c}")
+
+#bye
+
+$shell := ?shell?
+$line := $shell.getStep()
+echo ("${line}")
+
+$shell2 := ?ynot\shell?
+$line := $shell2.getStep()
+echo ("${line}")
+
+$test := $line = 14
+echo ("${test}")
+
+$test2 := =($line,9)
+echo ("${test2}")
+
+$list := new("ArrayList")
+$list.add("tata")
+$list.add("toto")
+$list.add("tutu")
+
+for($list, "elem")
+	echo($elem)
+end
+
+$size := $list.size
+$item := $list.get(1)
+
+$list2 := {"hola","que","tal"}
+for($list2, "elem")
+	echo($elem)
+end
+
+echo("the size is : ${size} :) ${today} blabla")
+
+# Function test
+function("translate", {})
+	echo("Can I translate something for you ?")
+	$something := readLine()
+	echo($something)
+	if ([$something = "no"])
+		echo("As you want...")
+	elseif ([$something = "yes"])
+		write("Too late...")
+		echo("tutu")
+		bye
+	else
+		echo("tata") 
+		if ([$something = "maybe"])
+			echo("toto")
+			echo("...")
+		else	
+			$traduc := translate_EN_FR($something)
+			echo($traduc)	
+		end	
+	end
+end
+
+function("sum",{"a","b"})
+	$c := [$a+1] + [$b-2]
+	$c := +($c, 11)
+	$c := -($c, 10)
+	return($c)
+end
+
+$sum := ~sum(1,3)
+echo("test return: ${sum}")
+
+# While loop test
+$i := 0
+while([[$i++] < 5])
+	$j := 5
+	while([[$j--] >= 0])
+		$k := $i + $j
+		echo("test : ${i} + ${j} = ${k}")
+	end
+	if ([=($i,3)])
+		break
+	end	
+end
+
+echo("end : ${i}")
+ynot\echo("end : ${j}")
+
+while(false)
+	$j := 0
+	while([[$j++] <= 5])
+		$k := $i + $j
+		echo("test : ${i} + ${j} = ${k}")
+	end
+end
+
+# For loop test
+for(1..9, "maVar")
+	if ([$maVar = 4])
+		echo("toto")
+		break
+	end
+	echo("${maVar}")
+end
+
+function("recur",{"a"})
+	if ([$a >= 10])
+		return
+	end
+	echo("recur : ${a}")
+	$a := ~sum($a,1)
+	~recur($a)
+end
+
+echo("end : ${maVar}")
+
+function("concat", {"a","b","c"})
+	echo([concat({$a, " ; ",$b , " ; ",$c})])
+end
+
+~concat("abc",123,"test")
+~translate()
+
+~recur(0)
+
+# sleep test
+sleep(3000)

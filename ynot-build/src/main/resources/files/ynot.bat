@@ -1,0 +1,1 @@
+java -jar "%~dp0ynot-vm-1.5-SNAPSHOT.jar" %1

@@ -1,0 +1,10 @@
+import("org.apache.commons.httpclient")
+import("org.apache.commons.httpclient.methods")
+
+$client := new("HttpClient")
+$method := new("GetMethod",{"http://www.google.com/"})
+$client.executeMethod($method)
+$responseBody := $method.getResponseBody()
+$str := new ("String", {$responseBody})
+echo($str)
+readLine()
