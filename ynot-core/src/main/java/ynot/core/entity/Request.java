@@ -151,7 +151,7 @@ public class Request {
 	}
 
 	@Override
-	public String toString() {
+    public final String toString() {
 		StringBuilder sb = new StringBuilder();
 		if (isActive()) {
 			sb.append(getVariableNames());
