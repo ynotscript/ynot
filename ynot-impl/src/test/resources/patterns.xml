@@ -10,7 +10,15 @@
 	<pattern>
 		<id>assignment</id>
 		<content>:=</content>
-	</pattern>	
+	</pattern>
+	<pattern>
+		<id>operationSeparator</id>
+		<content>@</content>
+	</pattern>
+	<pattern>
+		<id>allowedMathChars</id>
+		<content><![CDATA[:+\-<>=\!%/\^\*]]></content>
+	</pattern>
 	<pattern>
 		<id>comment</id>
 		<content>##whitespaces#####any##</content>
@@ -49,7 +57,7 @@
 	</pattern>
 	<pattern>
 		<id>operation</id>
-		<content><![CDATA[@[+\-<>=!a-zA-Z_%/\^\*]+[+\-<>=!0-9a-zA-Z_%/\^\*]*@]]></content>
+		<content><![CDATA[##operationSeparator##[+\-<>=!a-zA-Z_%/\^\*]+[+\-<>=!0-9a-zA-Z_%/\^\*]*##operationSeparator##]]></content>
 	</pattern>
 	<pattern>
 		<id>enteringParametersBlock</id>
