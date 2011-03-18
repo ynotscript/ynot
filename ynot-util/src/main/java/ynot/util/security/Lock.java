@@ -1,21 +1,52 @@
 package ynot.util.security;
 
+/**
+ * A simple implementation of a lock. It can work with an unique key (if you
+ * gave it on the constructor). Or with any key. The only constraint will be to
+ * use the same key (used when you locked) when you want to unlock.
+ * 
+ * @author ERIC.QUESADA
+ * 
+ */
 public class Lock implements Cloneable {
 
+    /**
+     * the used key when locked (else null).
+     */
     private String usedKey;
+
+    /**
+     * if it's set so the lock is only for this key.
+     */
     private final String uniqueKey;
 
+    /**
+     * To create a lock usable with any key.
+     */
     public Lock() {
         usedKey = null;
         uniqueKey = null;
     }
 
-    public Lock(String key) {
+    /**
+     * To create a lock for an uniq key.
+     * 
+     * @param key
+     *            the concerned key.
+     */
+    public Lock(final String key) {
         usedKey = null;
         uniqueKey = key;
     }
 
-    public final boolean tryToLock(String key) {
+    /**
+     * try to lock with a key.
+     * 
+     * @param key
+     *            the concerned key.
+     * @return true if succeed to lock else false.
+     */
+    public final boolean tryToLock(final String key) {
         if (isLocked() || !isAllowedKey(key)) {
             return false;
         }
@@ -23,7 +54,14 @@ public class Lock implements Cloneable {
         return true;
     }
 
-    public final boolean tryToUnlock(String key) {
+    /**
+     * try to unlock with a key.
+     * 
+     * @param key
+     *            the concerned key.
+     * @return true if succeed to unlock else false.
+     */
+    public final boolean tryToUnlock(final String key) {
         if (!isLocked() || !isSameKeyWhenLocking(key)) {
             return false;
         }
@@ -31,11 +69,23 @@ public class Lock implements Cloneable {
         return true;
     }
 
+    /**
+     * To know if it's already locked.
+     * 
+     * @return true if it's the case else false.
+     */
     public final boolean isLocked() {
         return usedKey != null;
     }
 
-    private boolean isAllowedKey(String key) {
+    /**
+     * To know if it's an allowed key.
+     * 
+     * @param key
+     *            the concerned key.
+     * @return true if it's the case else false.
+     */
+    private boolean isAllowedKey(final String key) {
         if (null == key) {
             return false;
         }
@@ -45,15 +95,33 @@ public class Lock implements Cloneable {
         return true;
     }
 
+    /**
+     * To know if the lock if for an uniq key.
+     * 
+     * @return true if it's the case else false.
+     */
     private boolean isUniqueKey() {
         return uniqueKey != null;
     }
 
-    private void lock(String key) {
+    /**
+     * To lock with a key.
+     * 
+     * @param key
+     *            the concerned key.
+     */
+    private void lock(final String key) {
         usedKey = key;
     }
 
-    private boolean isSameKeyWhenLocking(String key) {
+    /**
+     * To check if it's the same key used when locked.
+     * 
+     * @param key
+     *            the concerned key.
+     * @return true if it's the case else false.
+     */
+    private boolean isSameKeyWhenLocking(final String key) {
         if (isUniqueKey()) {
             return uniqueKey.equals(key);
         } else {
@@ -61,6 +129,9 @@ public class Lock implements Cloneable {
         }
     }
 
+    /**
+     * To unlock.
+     */
     private void unlock() {
         this.usedKey = null;
     }
