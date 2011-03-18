@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>ynot</groupId>
+	<groupId>com.ynotscript</groupId>
 	<artifactId>ynot</artifactId>
 	<packaging>pom</packaging>
 	<version>1</version>
@@ -45,17 +45,17 @@
 				<version>1.2.12</version>
 			</dependency>
 			<dependency>
-				<groupId>ynot</groupId>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>ynot-util</artifactId>
 				<version>${com.ynotscript.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>ynot</groupId>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>ynot-core</artifactId>
 				<version>${com.ynotscript.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>ynot</groupId>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>ynot-impl</artifactId>
 				<version>${com.ynotscript.version}</version>
 			</dependency>

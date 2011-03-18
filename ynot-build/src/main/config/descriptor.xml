@@ -11,7 +11,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>ynot:ynot-vm</include>
+				<include>${project.parent.groupId}:ynot-vm</include>
 			</includes>
 			<binaries>
 				<outputDirectory>ynot</outputDirectory>
@@ -21,7 +21,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>ynot:ynot-lang</include>
+				<include>${project.parent.groupId}:ynot-lang</include>
 			</includes>
 			<binaries>
 				<outputDirectory>ynot/dictionaries/ynot/lib</outputDirectory>
@@ -31,7 +31,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>ynot:ynot-impl</include>
+				<include>${project.parent.groupId}:ynot-impl</include>
 			</includes>
 			<binaries>
 				<unpack>false</unpack>
@@ -44,7 +44,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>ynot:ynot-impl</include>
+				<include>${project.parent.groupId}:ynot-impl</include>
 			</includes>
 			<includeSubModules>false</includeSubModules>
 			<sources>
@@ -60,7 +60,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>ynot:ynot-vm</include>
+				<include>${project.parent.groupId}:ynot-vm</include>
 			</includes>
 			<includeSubModules>false</includeSubModules>
 			<sources>
@@ -76,7 +76,7 @@
 		<moduleSet>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>ynot:ynot-build</include>
+				<include>${project.parent.groupId}:ynot-build</include>
 			</includes>
 			<includeSubModules>false</includeSubModules>
 			<sources>
