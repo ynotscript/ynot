@@ -1,5 +1,6 @@
 package ynot.impl.listener.provider.command;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -33,7 +34,10 @@ public class UnlockManager implements CommandProviderListener {
 
 	@Override
 	public final List<Command> preNotice(final List<Command> cmds) {
-
+	    if (null == cmds) {
+            return new ArrayList<Command>();
+        }
+	    
 		for (int i = 0; i < cmds.size(); i++) {
 			if (isUnlockingCmd(cmds.get(i))) {
 				Command unlockCmd = new Command();

@@ -17,146 +17,149 @@ import ynot.core.listener.provider.command.CommandProviderListener;
  */
 public class BlockManager implements CommandProviderListener {
 
-	/**
-	 * The logger.
-	 */
-	private static Logger logger = Logger.getLogger(BlockManager.class);
+    /**
+     * The logger.
+     */
+    private static Logger logger = Logger.getLogger(BlockManager.class);
 
-	/**
-	 * The opening commands list.
-	 */
-	private List<String> openingCommands;
-	
-	/**
-	 * The closing commands list.
-	 */
-	private List<String> closingCommands;
-	
-	@Override
-	public final boolean postNotice(final List<Command> cmds) {
-		return true;
-	}
+    /**
+     * The opening commands list.
+     */
+    private List<String> openingCommands;
 
-	@Override
-	public final List<Command> preNotice(final List<Command> cmds) {
+    /**
+     * The closing commands list.
+     */
+    private List<String> closingCommands;
 
-		Command openingCmd = getOpeningCommand(cmds);
-		Command closingCmd = getClosingCommand(cmds);
+    @Override
+    public final boolean postNotice(final List<Command> cmds) {
+        return true;
+    }
 
-		boolean isOpeningBlock = (openingCmd != null);
-		boolean isClosingBlock = (closingCmd != null);
+    @Override
+    public final List<Command> preNotice(final List<Command> cmds) {
+        if (null == cmds) {
+            return new ArrayList<Command>();
+        }
 
-		List<Command> addedCommands = new ArrayList<Command>();
+        Command openingCmd = getOpeningCommand(cmds);
+        Command closingCmd = getClosingCommand(cmds);
 
-		// If it's an opening block so add an enter command at the
-		// beginning.
-		if (isOpeningBlock) {
-			Command enterCmd = new Command();
-			enterCmd.setForced(true);
-			enterCmd.setResourceToUse(new Resource("ynot", "shell", null));
-			try {
-				enterCmd.setMethodToCall(Shell.class.getMethod("goIn",
-						String.class));
-			} catch (NoSuchMethodException e) {
-				logger.error("NoSuchMethodException", e);
-			}
-			Object[] arg = new Object[1];
-			arg[0] = openingCmd.getMethodToCall().getName();
-			enterCmd.setArgumentsToGive(arg);
-			addedCommands.add(enterCmd);
-		}
+        boolean isOpeningBlock = (openingCmd != null);
+        boolean isClosingBlock = (closingCmd != null);
 
-		// If it's a closing block so add an exit command at the
-		// beginning.
-		if (isClosingBlock) {
-			Command exitCmd = new Command();
-			exitCmd.setForced(true);
-			exitCmd.setResourceToUse(new Resource("ynot", "shell", null));
-			try {
-				exitCmd.setMethodToCall(Shell.class.getMethod("goOut"));
-			} catch (NoSuchMethodException e) {
-				logger.error("NoSuchMethodException", e);
-			}
-			exitCmd.setArgumentsToGive(new Object[0]);
-			addedCommands.add(exitCmd);
-		}
+        List<Command> addedCommands = new ArrayList<Command>();
 
-		if (addedCommands.size() > 0) {
-			for (Command oneCmd : addedCommands) {
-				cmds.add(0, oneCmd);
-			}
-		}
+        // If it's an opening block so add an enter command at the
+        // beginning.
+        if (isOpeningBlock) {
+            Command enterCmd = new Command();
+            enterCmd.setForced(true);
+            enterCmd.setResourceToUse(new Resource("ynot", "shell", null));
+            try {
+                enterCmd.setMethodToCall(Shell.class.getMethod("goIn",
+                        String.class));
+            } catch (NoSuchMethodException e) {
+                logger.error("NoSuchMethodException", e);
+            }
+            Object[] arg = new Object[1];
+            arg[0] = openingCmd.getMethodToCall().getName();
+            enterCmd.setArgumentsToGive(arg);
+            addedCommands.add(enterCmd);
+        }
 
-		return cmds;
-	}
+        // If it's a closing block so add an exit command at the
+        // beginning.
+        if (isClosingBlock) {
+            Command exitCmd = new Command();
+            exitCmd.setForced(true);
+            exitCmd.setResourceToUse(new Resource("ynot", "shell", null));
+            try {
+                exitCmd.setMethodToCall(Shell.class.getMethod("goOut"));
+            } catch (NoSuchMethodException e) {
+                logger.error("NoSuchMethodException", e);
+            }
+            exitCmd.setArgumentsToGive(new Object[0]);
+            addedCommands.add(exitCmd);
+        }
 
-	/**
-	 * Get a closing command containing in the command list.
-	 * 
-	 * @param cmds
-	 *            the list of commands to check.
-	 * @return the closing command.
-	 */
-	private Command getClosingCommand(final List<Command> cmds) {
-		List<String> closingList = getClosingCommands();
-		for (Command cmd : cmds) {
-			if (cmd == null) {
-				continue;
-			}
-			if (closingList.contains(cmd.getMethodToCall().getName())) {
-				return cmd;
-			}
-		}
-		return null;
-	}
+        if (addedCommands.size() > 0) {
+            for (Command oneCmd : addedCommands) {
+                cmds.add(0, oneCmd);
+            }
+        }
 
-	/**
-	 * Get an opening command containing in the command list.
-	 * 
-	 * @param cmds
-	 *            the list of commands to check.
-	 * @return the opening command.
-	 */
-	private Command getOpeningCommand(final List<Command> cmds) {
-		List<String> openingList = getOpeningCommands();
-		for (Command cmd : cmds) {
-			if (cmd == null) {
-				continue;
-			}
-			if (openingList.contains(cmd.getMethodToCall().getName())) {
-				return cmd;
-			}
-		}
-		return null;
-	}
+        return cmds;
+    }
 
-	/**
-	 * @param newOpeningCommands the openingCommands to set
-	 */
-	public final void setOpeningCommands(
-	        final List<String> newOpeningCommands) {
-		this.openingCommands = newOpeningCommands;
-	}
+    /**
+     * Get a closing command containing in the command list.
+     * 
+     * @param cmds
+     *            the list of commands to check.
+     * @return the closing command.
+     */
+    private Command getClosingCommand(final List<Command> cmds) {
+        List<String> closingList = getClosingCommands();
+        for (Command cmd : cmds) {
+            if (cmd == null) {
+                continue;
+            }
+            if (closingList.contains(cmd.getMethodToCall().getName())) {
+                return cmd;
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * @return the openingCommands
-	 */
-	public final List<String> getOpeningCommands() {
-		return openingCommands;
-	}
+    /**
+     * Get an opening command containing in the command list.
+     * 
+     * @param cmds
+     *            the list of commands to check.
+     * @return the opening command.
+     */
+    private Command getOpeningCommand(final List<Command> cmds) {
+        List<String> openingList = getOpeningCommands();
+        for (Command cmd : cmds) {
+            if (cmd == null) {
+                continue;
+            }
+            if (openingList.contains(cmd.getMethodToCall().getName())) {
+                return cmd;
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * @param newClosingCommands the closingCommands to set
-	 */
-	public final void setClosingCommands(
-	        final List<String> newClosingCommands) {
-		this.closingCommands = newClosingCommands;
-	}
+    /**
+     * @param newOpeningCommands
+     *            the openingCommands to set
+     */
+    public final void setOpeningCommands(final List<String> newOpeningCommands) {
+        this.openingCommands = newOpeningCommands;
+    }
 
-	/**
-	 * @return the closingCommands
-	 */
-	public final List<String> getClosingCommands() {
-		return closingCommands;
-	}
+    /**
+     * @return the openingCommands
+     */
+    public final List<String> getOpeningCommands() {
+        return openingCommands;
+    }
+
+    /**
+     * @param newClosingCommands
+     *            the closingCommands to set
+     */
+    public final void setClosingCommands(final List<String> newClosingCommands) {
+        this.closingCommands = newClosingCommands;
+    }
+
+    /**
+     * @return the closingCommands
+     */
+    public final List<String> getClosingCommands() {
+        return closingCommands;
+    }
 }
