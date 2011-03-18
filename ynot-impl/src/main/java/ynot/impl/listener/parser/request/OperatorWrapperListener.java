@@ -132,9 +132,9 @@ public class OperatorWrapperListener implements RequestParserListener<String> {
      * The pattern to find a mathematical operator.
      */
     protected static final Pattern PATTERN = Pattern
-            .compile(GROUPS[GROUP_INDEX_BEFORE_MATH_OP]
-                    + GROUPS[GROUP_INDEX_MATH_OP]
-                    + GROUPS[GROUP_INDEX_AFTER_MATH_OP]);
+            .compile(GROUPS[GROUP_INDEX_BEFORE_MATH_OP - 1]
+                    + GROUPS[GROUP_INDEX_MATH_OP - 1]
+                    + GROUPS[GROUP_INDEX_AFTER_MATH_OP - 1]);
 
     @Override
     public final String preNotice(final String objToParse) {
@@ -168,6 +168,7 @@ public class OperatorWrapperListener implements RequestParserListener<String> {
             return currentSubStep;
         }
         Matcher matcher = PATTERN.matcher(currentSubStep);
+        matcher.find();
         String before = matcher.group(GROUP_INDEX_BEFORE_MATH_OP);
         String cleanedBefore = before;
         if (cleanedBefore.contains(ASSIGNMENT_SIGN)) {

@@ -3,6 +3,7 @@ package ynot.impl.test.listener.parser.request;
 import org.junit.Before;
 import org.junit.Test;
 
+import ynot.core.listener.parser.request.RequestParserListener;
 import ynot.impl.listener.parser.request.EmbeddedRequestListener;
 
 /**
@@ -14,10 +15,10 @@ public class EmbeddedRequestListenerTest {
 	/**
 	 * The listener to test.
 	 */
-	private EmbeddedRequestListener erl;
+	private RequestParserListener<String> erl;
 
 	/**
-	 * To set up the mini parser.
+	 * To set up the listener.
 	 * @throws Exception if something is wrong. 
 	 */
 	@Before
