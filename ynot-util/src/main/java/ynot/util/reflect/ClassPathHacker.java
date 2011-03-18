@@ -6,38 +6,77 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class ClassPathHacker {
+/**
+ * To hack the class path loader system.
+ * 
+ * @author ERIC.QUESADA
+ * 
+ */
+public final class ClassPathHacker {
 
-	@SuppressWarnings("rawtypes")
-	private static final Class[] parameters = new Class[] { URL.class };
+    /**
+     * To forbid the instanciation.
+     */
+    private ClassPathHacker() {
+    }
 
-	public static void addFile(String s) throws IOException {
-		File f = new File(s);
-		addFile(f);
-	}
+    /**
+     * The parameters.
+     */
+    @SuppressWarnings("rawtypes")
+    private static final Class[] PARAMETERS = new Class[] { URL.class };
 
-	@SuppressWarnings("deprecation")
-	public static void addFile(File f) throws IOException {
-		addURL(f.toURL());
-	}
+    /**
+     * To add a file into the classpath.
+     * 
+     * @param s
+     *            the path of the file (String format).
+     * @throws IOException
+     *             if something is wrong.
+     */
+    public static void addFile(final String s) throws IOException {
+        File f = new File(s);
+        addFile(f);
+    }
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void addURL(URL u) throws IOException {
+    /**
+     * To add a file into the classpath.
+     * 
+     * @param f
+     *            the file (File format).
+     * @throws IOException
+     *             if something is wrong.
+     */
+    @SuppressWarnings("deprecation")
+    public static void addFile(final File f) throws IOException {
+        addURL(f.toURL());
+    }
 
-		URLClassLoader sysloader = (URLClassLoader) ClassLoader
-				.getSystemClassLoader();		
-		Class sysclass = URLClassLoader.class;
+    /**
+     * To add a file into the classpath.
+     * 
+     * @param u
+     *            the file (URL format).
+     * @throws IOException
+     *             if something is wrong.
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static void addURL(final URL u) throws IOException {
 
-		try {
-			Method method = sysclass.getDeclaredMethod("addURL", parameters);
-			method.setAccessible(true);
-			method.invoke(sysloader, new Object[] { u });
-		} catch (Throwable t) {
-			t.printStackTrace();
-			throw new IOException(
-					"Error, could not add URL to system classloader");
-		}
+        URLClassLoader sysloader = (URLClassLoader) ClassLoader
+                .getSystemClassLoader();
+        Class sysclass = URLClassLoader.class;
 
-	}
+        try {
+            Method method = sysclass.getDeclaredMethod("addURL", PARAMETERS);
+            method.setAccessible(true);
+            method.invoke(sysloader, new Object[] { u });
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new IOException(
+                    "Error, could not add URL to system classloader");
+        }
+
+    }
 
 }

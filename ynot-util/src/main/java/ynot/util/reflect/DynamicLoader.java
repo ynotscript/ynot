@@ -10,6 +10,12 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+/**
+ * To load dynamicly some jar into the classpath.
+ * 
+ * @author ERIC.QUESADA
+ * 
+ */
 public final class DynamicLoader {
 
     /**
@@ -17,9 +23,22 @@ public final class DynamicLoader {
      */
     private static Logger logger = Logger.getLogger(DynamicLoader.class);
 
+    /**
+     * Default constructor.
+     */
     private DynamicLoader() {
     }
 
+    /**
+     * To load a list of directory.
+     * 
+     * @param directories
+     *            the concerned directories.
+     * @param regExp
+     *            the regular expression of the jar names.
+     * @throws MalformedURLException
+     *             if something is wrong.
+     */
     public static void loadLibraryDirectory(final List<File> directories,
             final String regExp) throws MalformedURLException {
         for (File oneDirectory : directories) {
@@ -27,6 +46,16 @@ public final class DynamicLoader {
         }
     }
 
+    /**
+     * To load one direcory.
+     * 
+     * @param directory
+     *            the concerned directory.
+     * @param regExp
+     *            the regular expression of the jar names.
+     * @throws MalformedURLException
+     *             if something is wrong.
+     */
     public static void loadLibraryDirectory(final File directory,
             final String regExp) throws MalformedURLException {
         String[] libraries = directory.list(new FilenameFilter() {
@@ -51,6 +80,14 @@ public final class DynamicLoader {
         loadLibrary(librariesToLoad);
     }
 
+    /**
+     * To load a list of jars.
+     * 
+     * @param libraries
+     *            the concerned jars.
+     * @throws MalformedURLException
+     *             if something is wrong.
+     */
     public static void loadLibrary(final List<File> libraries)
             throws MalformedURLException {
         for (File oneLibrary : libraries) {
@@ -58,6 +95,14 @@ public final class DynamicLoader {
         }
     }
 
+    /**
+     * To load one jars.
+     * 
+     * @param library
+     *            the concerned jar.
+     * @throws MalformedURLException
+     *             if something is wrong.
+     */
     public static void loadLibrary(final File library)
             throws MalformedURLException {
         URL urlToAdd = library.toURI().toURL();

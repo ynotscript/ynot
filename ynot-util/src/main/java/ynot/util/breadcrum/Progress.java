@@ -1,73 +1,139 @@
 package ynot.util.breadcrum;
 
+/**
+ * To store the progression.
+ * 
+ * @author ERIC.QUESADA
+ * 
+ */
 public class Progress implements Cloneable {
 
-	private Integer currentStep;
-	private Integer currentSubStep;
-	private Integer nextStep;
-	private Integer nextSubStep;
+    /**
+     * The current step.
+     */
+    private Integer currentStep;
 
-	private static final Integer INITIAL_STEP = 1;
-	private static final Integer INITIAL_SUB_STEP = 1;
+    /**
+     * The current sub step.
+     */
+    private Integer currentSubStep;
 
-	public Progress() {
-		currentStep = INITIAL_STEP;
-		currentSubStep = INITIAL_SUB_STEP;
-		nextStep = null;
-		nextSubStep = null;
-	}
+    /**
+     * The next step.
+     */
+    private Integer nextStep;
 
-	public final Integer getStep() {
-		return currentStep;
-	}
+    /**
+     * The next subStep.
+     */
+    private Integer nextSubStep;
 
-	public final Integer getSubStep() {
-		return currentSubStep;
-	}
+    /**
+     * The initial step.
+     */
+    private static final Integer INITIAL_STEP = 1;
 
-	public final void goNextStep() {
-		if (nextSubStep == null) {
-			nextSubStep = INITIAL_SUB_STEP;
-		}
-		if (nextStep != null) {
-			currentStep = nextStep;
-			nextStep = null;
-		} else {
-			currentStep++;
-		}
-		goNextSubStep();
-	}
+    /**
+     * The initial subStep.
+     */
+    private static final Integer INITIAL_SUB_STEP = 1;
 
-	public final void goNextSubStep() {
-		if (nextSubStep != null) {
-			currentSubStep = nextSubStep;
-			nextSubStep = null;
-		} else {
-			currentSubStep++;
-		}
-	}
+    /**
+     * Default constructor.
+     */
+    public Progress() {
+        currentStep = INITIAL_STEP;
+        currentSubStep = INITIAL_SUB_STEP;
+        nextStep = null;
+        nextSubStep = null;
+    }
 
-	public final void setNext(Integer newNextStep) {
-		setNext(newNextStep, INITIAL_SUB_STEP);
-	}
+    /**
+     * To get the current step.
+     * 
+     * @return the current step.
+     */
+    public final Integer getStep() {
+        return currentStep;
+    }
 
-	public final void setNext(final Integer newNextStep,
-			final Integer newNextSubStep) {
-		this.nextStep = newNextStep;
-		this.nextSubStep = newNextSubStep;
-	}
+    /**
+     * To get the current subStep.
+     * 
+     * @return the current subStep.
+     */
+    public final Integer getSubStep() {
+        return currentSubStep;
+    }
 
-	public final boolean hasJumped() {
-		return (nextStep != null || nextSubStep != null);
-	}
+    /**
+     * To move to the next step and subStep.
+     */
+    public final void goNextStep() {
+        if (nextSubStep == null) {
+            nextSubStep = INITIAL_SUB_STEP;
+        }
+        if (nextStep != null) {
+            currentStep = nextStep;
+            nextStep = null;
+        } else {
+            currentStep++;
+        }
+        goNextSubStep();
+    }
 
-	@Override
-	public final Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
+    /**
+     * To go to the next subSTep.
+     */
+    public final void goNextSubStep() {
+        if (nextSubStep != null) {
+            currentSubStep = nextSubStep;
+            nextSubStep = null;
+        } else {
+            currentSubStep++;
+        }
+    }
 
-	@Override
-	public final String toString() {
-		return "step:" + getStep() + ",subStep:" + getSubStep();
-	}
+    /**
+     * To set the next step.
+     * 
+     * @param newNextStep
+     *            the new next step.
+     */
+    public final void setNext(final Integer newNextStep) {
+        setNext(newNextStep, INITIAL_SUB_STEP);
+    }
+
+    /**
+     * To set the next step and subStep.
+     * 
+     * @param newNextStep
+     *            the new next step.
+     * @param newNextSubStep
+     *            the new next subStep.
+     */
+    public final void setNext(final Integer newNextStep,
+            final Integer newNextSubStep) {
+        this.nextStep = newNextStep;
+        this.nextSubStep = newNextSubStep;
+    }
+
+    /**
+     * To know if it moved.
+     * 
+     * @return true if it's the case else false.
+     */
+    public final boolean hasJumped() {
+        return (nextStep != null || nextSubStep != null);
+    }
+
+    @Override
+    public final Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
+    public final String toString() {
+        return "step:" + getStep() + ",subStep:" + getSubStep();
+    }
 }
