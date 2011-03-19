@@ -7,18 +7,11 @@
 		http://www.springframework.org/schema/aop 
 		http://www.springframework.org/schema/aop/spring-aop.xsd">
 
-	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-			<value>classpath:config.properties</value>
-		</property>
-	</bean>
-
-	<bean id="shell" class="ynot.core.entity.Shell" init-method="init">
+	<bean id="shell" class="ynot.core.entity.Shell">
 		<property name="commandProvider" ref="commandProvider" />
 	</bean>
 
-	<bean id="commandProvider" class="ynot.impl.provider.command.SimpleCommandProvider"
-		init-method="init">
+	<bean id="commandProvider" class="ynot.impl.provider.command.SimpleCommandProvider">
 
 		<property name="requestProvider" ref="requestProvider" />
 
@@ -39,7 +32,7 @@
 		<property name="listeners">
 			<list>
 				<ref bean="blockManagerListener" />
-				<ref bean="unlockManagerListener" />				
+				<ref bean="unlockManagerListener" />
 			</list>
 		</property>
 	</bean>
@@ -47,15 +40,13 @@
 	<bean id="requestProvider" class="ynot.impl.provider.request.ScriptRequestProvider">
 		<constructor-arg value="script" />
 		<property name="parser" ref="requestParser" />
-		<property name="script" value="${script}" />
 	</bean>
 
-	<bean id="requestParser"
-		class="ynot.impl.parser.request.RequestParserHandler">
+	<bean id="requestParser" class="ynot.impl.parser.request.RequestParserHandler">
 		<property name="listeners">
 			<list>
-				<bean class="ynot.impl.listener.parser.request.EmbeddedRequestListener"/>
-				<bean class="ynot.impl.listener.parser.request.OperatorWrapperListener"/>
+				<bean class="ynot.impl.listener.parser.request.EmbeddedRequestListener" />
+				<bean class="ynot.impl.listener.parser.request.OperatorWrapperListener" />
 			</list>
 		</property>
 	</bean>
@@ -65,8 +56,9 @@
 		<property name="contexts">
 			<list>
 				<bean
-					class="org.springframework.context.support.FileSystemXmlApplicationContext">
-					<constructor-arg value="/${basepath}/dictionaries/ynot/conf/resources.xml" />
+					class="org.springframework.context.support.ClassPathXmlApplicationContext">
+					<constructor-arg
+						value="dictionaries/ynot/conf/resources.xml" />
 				</bean>
 			</list>
 		</property>
@@ -77,39 +69,40 @@
 		<property name="contexts">
 			<list>
 				<bean
-					class="org.springframework.context.support.FileSystemXmlApplicationContext">
-					<constructor-arg value="/${basepath}/dictionaries/demo/conf/resources.xml" />
+					class="org.springframework.context.support.ClassPathXmlApplicationContext">
+					<constructor-arg
+						value="dictionaries/demo/conf/resources.xml" />
 				</bean>
 			</list>
 		</property>
 	</bean>
 
 	<bean id="ynotDefinitionProvider"
-		class="ynot.impl.provider.definition.PropertiesDefinitionProvider"
-		init-method="init">
+		class="ynot.impl.provider.definition.PropertiesDefinitionProvider">
 		<constructor-arg value="ynot" />
 		<property name="properties">
 			<list>
-				<value>${basepath}/dictionaries/ynot/conf/definitions.properties</value>
+				<value>dictionaries/ynot/conf/definitions.properties
+				</value>
 			</list>
 		</property>
 		<property name="parser" ref="simpleDefinitionParser" />
 	</bean>
 
 	<bean id="demoDefinitionProvider"
-		class="ynot.impl.provider.definition.PropertiesDefinitionProvider"
-		init-method="init">
+		class="ynot.impl.provider.definition.PropertiesDefinitionProvider">
 		<constructor-arg value="demo" />
 		<property name="properties">
 			<list>
-				<value>${basepath}/dictionaries/demo/conf/definitions.properties</value>
+				<value>dictionaries/demo/conf/definitions.properties
+				</value>
 			</list>
 		</property>
 		<property name="parser" ref="simpleDefinitionParser" />
 	</bean>
-	
+
 	<bean id="simpleDefinitionParser" class="ynot.impl.parser.definition.SimpleDefinitionParser" />
-	
+
 	<bean id="blockManagerListener" class="ynot.impl.listener.provider.command.BlockManager">
 		<property name="openingCommands">
 			<list>
@@ -129,7 +122,7 @@
 			</list>
 		</property>
 	</bean>
-			
+
 	<bean id="unlockManagerListener" class="ynot.impl.listener.provider.command.UnlockManager">
 		<property name="unlockingCommands">
 			<list>
@@ -137,5 +130,5 @@
 			</list>
 		</property>
 	</bean>
-	
+
 </beans>

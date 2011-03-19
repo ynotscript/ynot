@@ -67,7 +67,7 @@
 				<includeModuleDirectory>false</includeModuleDirectory>
 				<fileSets>
 					<fileSet>
-						<outputDirectory>ynot/config</outputDirectory>
+						<outputDirectory>ynot</outputDirectory>
 						<directory>src/test/resources</directory>
 					</fileSet>
 				</fileSets>
@@ -82,10 +82,6 @@
 			<sources>
 				<includeModuleDirectory>false</includeModuleDirectory>
 				<fileSets>
-					<fileSet>
-						<outputDirectory>ynot/dictionaries</outputDirectory>
-						<directory>src/main/resources/dictionaries</directory>
-					</fileSet>
 					<fileSet>
 						<outputDirectory>ynot/examples</outputDirectory>
 						<directory>src/main/resources/examples</directory>

@@ -29,6 +29,7 @@ import ynot.util.reflect.ReflectionManager;
 
 /**
  * The default implementation of the command provider.
+ * 
  * @author equesada
  */
 public class SimpleCommandProvider implements CommandProvider<Integer> {
@@ -38,6 +39,11 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 */
 	private static Logger logger = Logger
 			.getLogger(SimpleCommandProvider.class);
+
+	/**
+	 * To know if the provider is initialized.
+	 */
+	private Boolean initialized;
 
 	/**
 	 * The provider name.
@@ -78,6 +84,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * The default constructor.
 	 */
 	public SimpleCommandProvider() {
+		initialized = false;
 		providerName = "SimpleCommandProvider";
 		currentStep = 1;
 		commands = new TreeMap<Integer, List<Command>>();
@@ -92,8 +99,8 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	}
 
 	@Override
-	public final List<Command> get(final Integer line) 
-	        throws UnprovidableCommandException {
+	public final List<Command> get(final Integer line)
+			throws UnprovidableCommandException {
 		try {
 			List<Command> cmds = commands.get(line);
 			noticePreCommandsListeners(cmds);
@@ -111,9 +118,12 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	/**
 	 * Clean a list of commands with the real resources.
-	 * @param list the list of commands to clean.
+	 * 
+	 * @param list
+	 *            the list of commands to clean.
 	 * @return the cleaned list.
-	 * @throws UnprovidableResourceException if a resource is missing.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is missing.
 	 */
 	private List<Command> cleanResources(final List<Command> list)
 			throws UnprovidableResourceException {
@@ -129,9 +139,12 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	/**
 	 * To clean a command with the real resources.
-	 * @param onCommand the command to clean.
+	 * 
+	 * @param onCommand
+	 *            the command to clean.
 	 * @return the cleaned command.
-	 * @throws UnprovidableResourceException if a resource is missing.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is missing.
 	 */
 	private boolean cleanResourceToUse(final Command onCommand)
 			throws UnprovidableResourceException {
@@ -148,8 +161,11 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	/**
 	 * To clean the arguments with the real resources.
-	 * @param onCommand the command to clean.
-	 * @throws UnprovidableResourceException if a resource is missing.
+	 * 
+	 * @param onCommand
+	 *            the command to clean.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is missing.
 	 */
 	private void cleanArgumentsToGive(final Command onCommand)
 			throws UnprovidableResourceException {
@@ -169,11 +185,13 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	@Override
 	public final boolean hasNext() {
+		init();
 		return (getStep() <= commands.size());
 	}
 
 	@Override
 	public final List<Command> getNext() throws UnprovidableCommandException {
+		init();
 		return get(currentStep++);
 	}
 
@@ -185,8 +203,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * @param cmds
 	 *            The commands to add
 	 */
-	private void addCommands(
-	        final Integer step, final List<Command> cmds) {
+	private void addCommands(final Integer step, final List<Command> cmds) {
 		if (cmds == null || cmds.size() == 0) {
 			addCommand(step, null);
 		} else {
@@ -203,7 +220,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 *            the list of commands of this step.
 	 */
 	private void noticePreCommandsListeners(final List<Command> cmds) {
-	    List<Command> newCmds = cmds;
+		List<Command> newCmds = cmds;
 		for (CommandProviderListener listener : listeners) {
 			newCmds = listener.preNotice(newCmds);
 		}
@@ -253,7 +270,9 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * To parse a ynot script and prepare commands.
 	 */
 	public final void init() {
-
+		if (initialized) {
+			return;
+		}
 		try {
 			int step = 0;
 			ResourceProvider<String> resourceProvider = null;
@@ -371,22 +390,24 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 						commandsOfThisStep.add(cmd);
 					}
 				}
-
 				addCommands(step, commandsOfThisStep);
-
 			}
 		} catch (SecurityException e) {
 			logger.error("SecurityException", e);
 		} catch (UnprovidableResourceException e) {
 			logger.error("UnprovidableResourceException", e);
 		}
+		initialized = true;
 	}
 
 	/**
 	 * Update the parameters with the given parameters.
-	 * @param givenParameters to parameter to update.
+	 * 
+	 * @param givenParameters
+	 *            to parameter to update.
 	 * @return the filled parameters.
-	 * @throws UnprovidableResourceException if a resource is missing.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is missing.
 	 */
 	private Object[] updateResources(final Object[] givenParameters)
 			throws UnprovidableResourceException {
@@ -676,8 +697,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * @param varNames
 	 *            the target variable.
 	 */
-	private void setAttachedVarName(
-	        final Command cmd, final String[] varNames) {
+	private void setAttachedVarName(final Command cmd, final String[] varNames) {
 		if (varNames == null) {
 			return;
 		}
@@ -727,7 +747,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	@Override
 	public final void setListeners(
-	        final List<CommandProviderListener> newListeners) {
+			final List<CommandProviderListener> newListeners) {
 		for (CommandProviderListener listener : newListeners) {
 			addListener(listener);
 		}
@@ -735,7 +755,9 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	/**
 	 * The setter of the resourceProviders.
-	 * @param newResourceProviders the new resourceProviders.
+	 * 
+	 * @param newResourceProviders
+	 *            the new resourceProviders.
 	 */
 	public final void setResourceProviders(
 			final List<ResourceProvider<String>> newResourceProviders) {
@@ -746,7 +768,9 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	/**
 	 * The getter of the resourceProviders.
-	 * @param newDefinitionProviders the current resourceProviders.
+	 * 
+	 * @param newDefinitionProviders
+	 *            the current resourceProviders.
 	 */
 	public final void setDefinitionProviders(
 			final List<DefinitionProvider<String>> newDefinitionProviders) {

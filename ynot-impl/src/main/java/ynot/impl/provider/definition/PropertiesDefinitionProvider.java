@@ -1,7 +1,5 @@
 package ynot.impl.provider.definition;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,8 +24,7 @@ import ynot.core.provider.definition.DefinitionProvider;
  * 
  * @author equesada
  */
-public class PropertiesDefinitionProvider 
-        implements DefinitionProvider<String> {
+public class PropertiesDefinitionProvider implements DefinitionProvider<String> {
 
 	// Member(s)
 
@@ -36,6 +33,11 @@ public class PropertiesDefinitionProvider
 	 */
 	private static Logger logger = Logger
 			.getLogger(PropertiesDefinitionProvider.class);
+
+	/**
+	 * To know if the provider is initialized.
+	 */
+	private Boolean initialized;
 
 	/**
 	 * The available words.
@@ -72,6 +74,7 @@ public class PropertiesDefinitionProvider
 	 */
 	public PropertiesDefinitionProvider(final String newProviderName) {
 		super();
+		initialized = false;
 		providerName = newProviderName;
 		words = new HashMap<String, Definition>();
 		listeners = new ArrayList<DefinitionProviderListener>();
@@ -107,7 +110,7 @@ public class PropertiesDefinitionProvider
 	 * @return the definition in lowerCase.
 	 */
 	private Map<String, Definition> toLowerCase(
-	        final Map<String, Definition> newWords) {
+			final Map<String, Definition> newWords) {
 		Map<String, Definition> ret = new HashMap<String, Definition>();
 		for (Entry<String, Definition> entry : newWords.entrySet()) {
 			String key = entry.getKey().toLowerCase();
@@ -127,8 +130,8 @@ public class PropertiesDefinitionProvider
 			throws IOException {
 		for (String oneFile : propertiesFile) {
 			Properties lex = new Properties();
-			File file = new File(oneFile);
-			InputStream stream = new FileInputStream(file);
+			InputStream stream = this.getClass().getClassLoader()
+					.getResourceAsStream(oneFile.trim());
 			try {
 				lex.load(stream);
 			} finally {
@@ -166,6 +169,9 @@ public class PropertiesDefinitionProvider
 	 * To load the word from the properties using the parser.
 	 */
 	public final void init() {
+		if (initialized) {
+			return;
+		}
 		for (Properties lex : propertiesList) {
 			Enumeration<Object> cmds = lex.keys();
 			while (cmds.hasMoreElements()) {
@@ -185,6 +191,7 @@ public class PropertiesDefinitionProvider
 				addWord(word, def);
 			}
 		}
+		initialized = true;
 	}
 
 	/**
@@ -236,7 +243,9 @@ public class PropertiesDefinitionProvider
 	 *            the word.
 	 * @return the resource.
 	 */
+	@Override
 	public final Definition get(final String word) {
+		init();
 		Definition def = getDefinition(word.toLowerCase());
 		def = preNoticeListeners(def);
 		if (postNoticeListeners(def)) {
@@ -254,7 +263,7 @@ public class PropertiesDefinitionProvider
 	 * @return the modified (or not) definition.
 	 */
 	private Definition preNoticeListeners(final Definition def) {
-	    Definition newDef = def;
+		Definition newDef = def;
 		for (DefinitionProviderListener listener : listeners) {
 			newDef = listener.preNotice(newDef);
 		}
@@ -282,6 +291,7 @@ public class PropertiesDefinitionProvider
 	 * 
 	 * @return null.
 	 */
+	@Override
 	public final Definition getNext() {
 		return null;
 	}
@@ -291,6 +301,7 @@ public class PropertiesDefinitionProvider
 	 * 
 	 * @return false.
 	 */
+	@Override
 	public final boolean hasNext() {
 		return false;
 	}

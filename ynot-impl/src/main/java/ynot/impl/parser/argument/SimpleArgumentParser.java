@@ -8,9 +8,9 @@ import ynot.core.exception.parser.UnparsableArgumentException;
 import ynot.core.listener.parser.argument.ArgumentParserListener;
 import ynot.core.parser.argument.ArgumentParser;
 
-
 /**
  * A simple implementation of the ArgumentParser (the input is a string).
+ * 
  * @author equesada
  */
 public class SimpleArgumentParser implements ArgumentParser<String> {
@@ -36,6 +36,11 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 	private static final String PREFIX_BINARY = "2x";
 
 	/**
+	 * The prefix to identify a float.
+	 */
+	private static final String PREFIX_FLOAT = "fx";
+	
+	/**
 	 * The prefix to identify an octal.
 	 */
 	private static final String PREFIX_OCTAL = "8x";
@@ -59,13 +64,16 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 
 	/**
 	 * To parse an argument.
-	 * @param object the string argument to parse.
+	 * 
+	 * @param object
+	 *            the string argument to parse.
 	 * @return the real argument
-	 * @throws UnparsableArgumentException if not able to parse
+	 * @throws UnparsableArgumentException
+	 *             if not able to parse
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public final Object parse(final String object)
-	    throws UnparsableArgumentException {
+			throws UnparsableArgumentException {
 		String obj = object;
 		for (ArgumentParserListener<String> oneListerner : listeners) {
 			obj = oneListerner.preNotice(obj);
@@ -87,20 +95,17 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 		} else if (str.startsWith("?") && str.endsWith("?")) {
 			// Object from a resource provider
 			String providerName = null;
-			String resourceName = str.substring(1,
-			    str.length() - 1);
+			String resourceName = str.substring(1, str.length() - 1);
 			if (resourceName.contains("\\")) {
 				providerName = resourceName.substring(0,
-				    resourceName.indexOf("\\"));
+						resourceName.indexOf("\\"));
 				resourceName = resourceName.substring(
-				    resourceName.indexOf("\\") + 1, resourceName
-				        .length());
+						resourceName.indexOf("\\") + 1, resourceName.length());
 			}
 			ret = new Resource(providerName, resourceName, null);
 		} else if (str.startsWith("{") && str.endsWith("}")) {
 			// Array
-			String[] parts = splitArguments(str.substring(1, str
-			    .length() - 1));
+			String[] parts = splitArguments(str.substring(1, str.length() - 1));
 			ret = new ArrayList<Object>();
 			for (String onePart : parts) {
 				((List) ret).add(parse(onePart));
@@ -114,38 +119,37 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 			for (int i = start; i <= stop; i++) {
 				((List) ret).add(i);
 			}
-		} else if (str.contains(".")) {
+		} else if (str.matches("[0-9]+")) {
+			// Integer
+			ret = Integer.parseInt(str);
+		} else if (str.matches("[0-9]+\\.[0-9]+")) {
 			// Double
-			str = str.replaceAll("[^0-9.]", "");
 			ret = Double.parseDouble(str);
+		} else if (str.matches(PREFIX_FLOAT + "[0-9]+\\.[0-9]+")) {
+			// float
+			str = str.substring(PREFIX_FLOAT.length());
+			ret = Float.parseFloat(str);
+		} else if (str.startsWith(PREFIX_BINARY)) {
+			// binary
+			str = str.substring(PREFIX_BINARY.length());
+			str = str.replaceAll("[^0-1]", "");
+			ret = Integer.parseInt(str, RADIX_BINARY);
+		} else if (str.startsWith(PREFIX_OCTAL)) {
+			// octal
+			str = str.substring(PREFIX_OCTAL.length());
+			str = str.replaceAll("[^0-7]", "");
+			ret = Integer.parseInt(str, RADIX_OCTAL);
+		} else if (str.startsWith(PREFIX_HEXADECIMAL)) {
+			// hexa
+			str = str.substring(PREFIX_HEXADECIMAL.length());
+			str = str.toUpperCase();
+			str = str.replaceAll("[^0-9A-F]", "");
+			ret = Integer.parseInt(str, RADIX_HEXADECIMAL);
 		} else {
-			// Number
-			if (str.startsWith(PREFIX_BINARY)) {
-				// binary
-				str = str.substring(PREFIX_BINARY.length());
-				str = str.replaceAll("[^0-1]", "");
-				ret = Integer.parseInt(str, RADIX_BINARY);
-			} else if (str.startsWith(PREFIX_OCTAL)) {
-				// octal
-				str = str.substring(PREFIX_OCTAL.length());
-				str = str.replaceAll("[^0-7]", "");
-				ret = Integer.parseInt(str, RADIX_OCTAL);
-			} else if (str.startsWith(PREFIX_HEXADECIMAL)) {
-				// hexadecimal
-				str = str.substring(PREFIX_HEXADECIMAL.length());
-				str = str.toUpperCase();
-				str = str.replaceAll("[^0-9A-F]", "");
-				ret = Integer.parseInt(str, RADIX_HEXADECIMAL);
-			} else {
-				// integer
-				try {
-					ret = Integer.parseInt(str);
-				} catch (NumberFormatException e) {
-					throw new UnparsableArgumentException(
-						"Not able to parse : " + object);
-				}
-			}
+			throw new UnparsableArgumentException("Not able to parse : "
+					+ object);
 		}
+
 		for (ArgumentParserListener<String> oneListerner : listeners) {
 			if (!oneListerner.postNotice(ret)) {
 				return null;
@@ -156,7 +160,9 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 
 	/**
 	 * To split a string from the commas.
-	 * @param strToSplit the spring to split.
+	 * 
+	 * @param strToSplit
+	 *            the spring to split.
 	 * @return the different parts of the string.
 	 */
 	private String[] splitArguments(final String strToSplit) {
