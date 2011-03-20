@@ -91,8 +91,23 @@
 						<directory>src/main/resources/res</directory>
 					</fileSet>
 					<fileSet>
+						<outputDirectory>ynot/ynot.app</outputDirectory>
+						<directory>src/main/resources/files/ynotapp</directory>
+						<fileMode>0755</fileMode>
+						<directoryMode>0755</directoryMode>
+					</fileSet>
+					<fileSet>
+						<outputDirectory>ynot/ynotui.app</outputDirectory>
+						<directory>src/main/resources/files/ynotuiapp</directory>
+						<fileMode>0755</fileMode>
+						<directoryMode>0755</directoryMode>
+					</fileSet>
+					<fileSet>
 						<outputDirectory>ynot</outputDirectory>
 						<directory>src/main/resources/files</directory>
+						<includes>
+							<include>*.*</include>
+						</includes>
 						<fileMode>0755</fileMode>
 						<directoryMode>0755</directoryMode>
 					</fileSet>
