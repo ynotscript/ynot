@@ -1,0 +1,16 @@
+Ynot is a scripting language easy to read and to write.
+No more need to compile.
+Runnable everywhere.
+
+The ynot scripts can directly use all the Java SE API (swing, sound, ...).
+It runs on top of the Java Virtual Machine.
+The project is written in Java and Free.
+All the project is built around a new principle that I called the RDC principle.
+
+#=======================================
+echo("Hi, I'm Ynot.What's your name ?")
+$name := readLine()
+echo("Nice to meet you ${name}!")
+#=======================================
+
+
