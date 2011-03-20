@@ -11,12 +11,14 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
-				<string>*</string>
+				<string>ynotui</string>
 			</array>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
-				<string>****</string>
+				<string>ynotui script</string>
 			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>droplet.icns</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
@@ -55,5 +57,28 @@
 		<key>selectedTabView</key>
 		<string>result</string>
 	</dict>
+  <key>UTExportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>public.text</string>
+<string>public.plain-text</string>
+      </array>
+      <key>UTTypeDescription</key>
+      <string>YnotUI script</string>
+      <key>UTTypeIdentifier</key>
+      <string>com.ynotscript.ynotui</string>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>com.apple.ostype</key>
+        <string>TEXT</string>
+        <key>public.filename-extension</key>
+        <array>
+          <string>ynotui</string>
+        </array>
+      </dict>
+    </dict>
+  </array>
 </dict>
 </plist>
