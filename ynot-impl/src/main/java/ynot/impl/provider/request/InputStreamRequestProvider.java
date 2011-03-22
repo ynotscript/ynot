@@ -32,7 +32,9 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 
 	/**
 	 * To set the input stream.
-	 * @param newStream the input stream to use.
+	 * 
+	 * @param newStream
+	 *            the input stream to use.
 	 */
 	public final void setInputStream(final InputStream newStream) {
 		reader = new BufferedReader(new InputStreamReader(newStream));
@@ -45,7 +47,9 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 
 	/**
 	 * The setter of the request parser.
-	 * @param newParser the new parser to set.
+	 * 
+	 * @param newParser
+	 *            the new parser to set.
 	 */
 	public final void setParser(final RequestParser<String> newParser) {
 		this.parser = newParser;
@@ -58,6 +62,7 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 
 	/**
 	 * The constructor.
+	 * 
 	 * @param newProviderName
 	 *            the name of the provider.
 	 */
@@ -104,7 +109,9 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 
 	/**
 	 * Call the listeners before.
-	 * @param reqs the current requests.
+	 * 
+	 * @param reqs
+	 *            the current requests.
 	 * @return the modified (or not) requests.
 	 */
 	private List<Request> preNoticeListeners(final List<Request> reqs) {
@@ -117,7 +124,9 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 
 	/**
 	 * Call the listeners after.
-	 * @param reqs the current requests.
+	 * 
+	 * @param reqs
+	 *            the current requests.
 	 * @return the modified (or not) requests.
 	 */
 	private boolean postNoticeListeners(final List<Request> reqs) {
@@ -134,11 +143,12 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 	 * 
 	 * @return true if there is another resource.
 	 */
-	public final boolean hasNext() {
+	@Override
+	public final boolean hasNext() throws UnprovidableRequestException {
 		try {
 			return reader.ready();
 		} catch (IOException e) {
-			return false;
+			throw new UnprovidableRequestException(e);
 		}
 	}
 

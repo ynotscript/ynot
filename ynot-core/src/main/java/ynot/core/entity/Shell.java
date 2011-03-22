@@ -1,5 +1,6 @@
 package ynot.core.entity;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,17 +64,17 @@ public class Shell implements Cloneable {
 
 	/**
 	 * It will execute all the commands.
+	 * @throws UnprovidableCommandException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 * @throws CloneNotSupportedException 
+	 * @throws UnprovidableResourceException 
 	 */
-	public final void run() {
-		try {
-			init();
-			while (hasStep()) {
-				runStep();
-				nextStep();
-			}
-		} catch (Exception e) {
-			String message = getErrorMessage(e);
-			logger.error(message);
+	public final void run() throws UnprovidableCommandException, UnprovidableResourceException, CloneNotSupportedException, IllegalAccessException, InvocationTargetException {
+		init();
+		while (hasStep()) {
+			runStep();
+			nextStep();
 		}
 	}
 
@@ -97,11 +98,12 @@ public class Shell implements Cloneable {
 
 	/**
 	 * Run the current step.
-	 * 
-	 * @throws Exception
-	 *             if there is an error.
+	 * @throws CloneNotSupportedException 
+	 * @throws UnprovidableResourceException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
-	public final void runStep() throws Exception {
+	public final void runStep() throws UnprovidableResourceException, CloneNotSupportedException, IllegalAccessException, InvocationTargetException  {
 
 		while (hasCommandToExecute()) {
 			Command currentCommand = getCurrentCommand();
@@ -506,40 +508,6 @@ public class Shell implements Cloneable {
 	 */
 	public final void unlock(final String password) {
 		lock.tryToUnlock(password);
-	}
-
-	/**
-	 * To get a displayable message of the error.
-	 * 
-	 * @param e
-	 *            the error.
-	 * @return the displayable message.
-	 */
-	private String getErrorMessage(final Exception e) {
-		String message = "\n===== Script =====\n" + "o step    = "
-				+ progress.getStep() + "\n" + "o substep = "
-				+ progress.getSubStep() + "\n";
-		Throwable cause = e.getCause();
-		if (cause != null) {
-			StackTraceElement[] elems = cause.getStackTrace();
-			StackTraceElement c = elems[0];
-			if (cause.getMessage() != null) {
-				message += "o msg     = " + cause.getMessage() + "\n";
-			} else if (e.getMessage() != null) {
-				message += "o msg     = " + e.getMessage() + "\n";
-			} else {
-				e.printStackTrace();
-			}
-			message += "====== File ======\n";
-			message += "o name = " + c.getFileName() + "\n";
-			message += "o line = " + c.getLineNumber() + "\n";
-		} else {
-			message += "o msg     = " + e.getMessage() + "\n";
-		}
-		message += "==== Command =====\n";
-		message += getCurrentCommand().toString();
-		message += "==================\n";
-		return message;
 	}
 
 	/**

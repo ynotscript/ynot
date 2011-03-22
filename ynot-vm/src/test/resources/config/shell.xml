@@ -17,14 +17,14 @@
 
 		<property name="resourceProviders">
 			<list>
-				<ref bean="ynotResourceProvider" />
+				<ref bean="resourceProvider" />
 				<ref bean="demoResourceProvider" />
 			</list>
 		</property>
 
 		<property name="definitionProviders">
 			<list>
-				<ref bean="ynotDefinitionProvider" />
+				<ref bean="definitionProvider" />
 				<ref bean="demoDefinitionProvider" />
 			</list>
 		</property>
@@ -51,7 +51,7 @@
 		</property>
 	</bean>
 
-	<bean id="ynotResourceProvider" class="ynot.impl.provider.resource.SpringResourceProvider">
+	<bean id="resourceProvider" class="ynot.impl.provider.resource.SpringResourceProvider">
 		<constructor-arg value="ynot" />
 		<property name="contexts">
 			<list>
@@ -77,7 +77,7 @@
 		</property>
 	</bean>
 
-	<bean id="ynotDefinitionProvider"
+	<bean id="definitionProvider"
 		class="ynot.impl.provider.definition.PropertiesDefinitionProvider">
 		<constructor-arg value="ynot" />
 		<property name="properties">
@@ -86,7 +86,7 @@
 				</value>
 			</list>
 		</property>
-		<property name="parser" ref="simpleDefinitionParser" />
+		<property name="parser" ref="definitionParser" />
 	</bean>
 
 	<bean id="demoDefinitionProvider"
@@ -98,10 +98,10 @@
 				</value>
 			</list>
 		</property>
-		<property name="parser" ref="simpleDefinitionParser" />
+		<property name="parser" ref="definitionParser" />
 	</bean>
 
-	<bean id="simpleDefinitionParser" class="ynot.impl.parser.definition.SimpleDefinitionParser" />
+	<bean id="definitionParser" class="ynot.impl.parser.definition.SimpleDefinitionParser" />
 
 	<bean id="blockManagerListener" class="ynot.impl.listener.provider.command.BlockManager">
 		<property name="openingCommands">

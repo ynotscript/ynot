@@ -24,11 +24,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>ynot-core</artifactId>
+			<artifactId>ynot-impl</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>ynot-impl</artifactId>
+			<artifactId>ynot-lang</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>

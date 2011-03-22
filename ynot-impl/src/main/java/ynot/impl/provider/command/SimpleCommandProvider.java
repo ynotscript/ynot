@@ -10,8 +10,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-
 import ynot.core.entity.Command;
 import ynot.core.entity.Definition;
 import ynot.core.entity.Request;
@@ -33,12 +31,6 @@ import ynot.util.reflect.ReflectionManager;
  * @author equesada
  */
 public class SimpleCommandProvider implements CommandProvider<Integer> {
-
-	/**
-	 * The logger.
-	 */
-	private static Logger logger = Logger
-			.getLogger(SimpleCommandProvider.class);
 
 	/**
 	 * To know if the provider is initialized.
@@ -184,14 +176,22 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	}
 
 	@Override
-	public final boolean hasNext() {
-		init();
+	public final boolean hasNext() throws UnprovidableCommandException {
+		try {
+			init();
+		} catch (Exception e) {
+			throw new UnprovidableCommandException(e);
+		}
 		return (getStep() <= commands.size());
 	}
 
 	@Override
 	public final List<Command> getNext() throws UnprovidableCommandException {
-		init();
+		try {
+			init();
+		} catch (Exception e) {
+			throw new UnprovidableCommandException(e);
+		}
 		return get(currentStep++);
 	}
 
@@ -267,135 +267,83 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	}
 
 	/**
-	 * To parse a ynot script and prepare commands.
+	 * To parse make commands from the requests.
+	 * 
+	 * @throws UnprovidableRequestException if not able to get a request.
+	 * @throws UnprovidableDefinitionException if not able to get a definition.
+	 * @throws UnprovidableResourceException if not able to get a resource.
+	 * @throws NoSuchMethodException if not able to get a method.
 	 */
-	public final void init() {
+	public final void init() throws UnprovidableRequestException,
+			UnprovidableDefinitionException, UnprovidableResourceException,
+			NoSuchMethodException {
 		if (initialized) {
 			return;
 		}
-		try {
-			int step = 0;
-			ResourceProvider<String> resourceProvider = null;
+		int step = 0;
 
-			// While any request is present
-			while (requestProvider.hasNext()) {
+		// While any request is present
+		while (requestProvider.hasNext()) {
 
-				step++;
-				int subStep = -1;
+			step++;
+			int subStep = -1;
 
-				// for each request of this step
-				List<Request> requestsOfThisStep = null;
-				try {
-					requestsOfThisStep = requestProvider.getNext();
-				} catch (UnprovidableRequestException e) {
-					String msg = e.getMessage();
-					String message = getMessage(step, subStep, null, msg);
-					logger.error(message);
+			// for each request of this step
+			List<Request> requestsOfThisStep = requestProvider.getNext();
+			List<Command> commandsOfThisStep = new ArrayList<Command>();
+
+			for (Request req : requestsOfThisStep) {
+
+				subStep++;
+
+				// if the request is not active, put a null command
+				if (!req.isActive()) {
+					commandsOfThisStep.add(null);
 					continue;
 				}
-				List<Command> commandsOfThisStep = new ArrayList<Command>();
 
-				for (Request req : requestsOfThisStep) {
+				// get the definition
+				Definition def = getDefinition(req);
 
-					subStep++;
+				// get the resource
+				String rpn = def.getResourceProviderName();
+				ResourceProvider<String> resourceProvider = getResourceProvider(rpn);
 
-					// if the request is not active, put a null command
-					if (!req.isActive()) {
-						commandsOfThisStep.add(null);
-						continue;
-					}
+				Resource res = resourceProvider.get(def.getResourceNameToUse());
 
-					// get the definition
-					Definition def = null;
+				// update the definition to set the real resources
+				updateDefinitionWithResources(def);
 
-					try {
-						def = getDefinition(req);
-					} catch (UnprovidableDefinitionException e) {
-						String msg = "this word is unknown " + e.getMessage();
-						String message = getMessage(step, subStep, null, msg);
-						logger.error(message);
-						return;
-					}
+				Object obj = res.getContent();
 
-					// get the resource
-					String rpn = def.getResourceProviderName();
-					resourceProvider = getResourceProvider(rpn);
+				// For each method to call on the resource add a "command"
+				// object.
+				int start = 0;
+				for (String methodName : def.getMethodNamesToCall()) {
 
-					if (resourceProvider == null) {
-						String msg = "Resource Provider missing \""
-								+ def.getResourceProviderName() + "\"";
-						String message = getMessage(step, subStep, def, msg);
-						logger.error(message);
-						return;
-					}
+					// Get the Method object
+					Method method = ReflectionManager.getMethod(obj.getClass(),
+							methodName, def.getParameterTypes(methodName));
 
-					Resource res = null;
+					// Build the Command object
+					Command cmd = new Command();
+					cmd.setResourceToUse(obj);
+					cmd.setMethodToCall(method);
 
-					try {
-						res = resourceProvider.get(def.getResourceNameToUse());
-					} catch (UnprovidableResourceException e) {
-						String msg = "Resource missing";
-						String message = getMessage(step, subStep, def, msg);
-						logger.error(message);
-						return;
-					}
+					// Set the argument to give to the command
+					start = setArgumentsToGive(cmd,
+							updateResources(req.getGivenParameters()),
+							def.getPredefinedValues(methodName),
+							method.getParameterTypes().length, start);
 
-					// update the definition to set the real resources
-					try {
-						updateDefinitionWithResources(def);
-					} catch (UnprovidableResourceException e) {
-						String msg = e.getMessage();
-						String message = getMessage(step, subStep, def, msg);
-						logger.error(message);
-						return;
-					}
+					// flag the variable to fill (on return)
+					setAttachedVarName(cmd, req.getVariableNames());
 
-					Object obj = res.getContent();
-
-					// For each method to call on the resource add a "command"
-					// object.
-					int start = 0;
-					for (String methodName : def.getMethodNamesToCall()) {
-
-						// Get the Method object
-						Method method = ReflectionManager.getMethod(
-								obj.getClass(), methodName,
-								def.getParameterTypes(methodName));
-
-						if (method == null) {
-							logger.error("Method not found on resource "
-									+ obj.getClass().getName() + " ::word '"
-									+ req.getWordToUse() + "' ::methodName '"
-									+ methodName + "' ::parameterNumber '"
-									+ def.getParameterTypes(methodName).length
-									+ "'");
-							continue;
-						}
-
-						// Build the Command object
-						Command cmd = new Command();
-						cmd.setResourceToUse(obj);
-						cmd.setMethodToCall(method);
-
-						// Set the argument to give to the command
-						start = setArgumentsToGive(cmd,
-								updateResources(req.getGivenParameters()),
-								def.getPredefinedValues(methodName),
-								method.getParameterTypes().length, start);
-
-						// flag the variable to fill (on return)
-						setAttachedVarName(cmd, req.getVariableNames());
-
-						// Add the command at the end of the list
-						commandsOfThisStep.add(cmd);
-					}
+					// Add the command at the end of the list
+					commandsOfThisStep.add(cmd);
 				}
-				addCommands(step, commandsOfThisStep);
 			}
-		} catch (SecurityException e) {
-			logger.error("SecurityException", e);
-		} catch (UnprovidableResourceException e) {
-			logger.error("UnprovidableResourceException", e);
+			addCommands(step, commandsOfThisStep);
 		}
 		initialized = true;
 	}
@@ -488,10 +436,18 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * @param newProviderName
 	 *            the name of the provider
 	 * @return the resource provider.
+	 * @throws UnprovidableResourceException
+	 *             if the resource provider doesn't exist.
 	 */
 	public final ResourceProvider<String> getResourceProvider(
-			final String newProviderName) {
-		return resourceProviders.get(newProviderName);
+			final String newProviderName) throws UnprovidableResourceException {
+		ResourceProvider<String> ret = resourceProviders.get(newProviderName);
+		if (null == ret) {
+			String msg = "Resource Provider missing \"" + newProviderName
+					+ "\"";
+			throw new UnprovidableResourceException(msg);
+		}
+		return ret;
 	}
 
 	/**
@@ -583,30 +539,6 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 */
 	public final void clearListener() {
 		listeners.clear();
-	}
-
-	/**
-	 * @param step
-	 *            the current step of the error.
-	 * @param subStep
-	 *            the current sub step of the error.
-	 * @param def
-	 *            the current definition.
-	 * @param msg
-	 *            the message.
-	 * @return the full message.
-	 */
-	private String getMessage(final int step, final int subStep,
-			final Definition def, final String msg) {
-		String message = "\n===== Script =====\n" + "o step    = " + step
-				+ "\n" + "o substep = " + subStep + "\n" + "o msg     = " + msg
-				+ "\n";
-		if (def != null) {
-			message += def.getResourceNameToUse() + "\" from "
-					+ def.getResourceProviderName() + "\n";
-		}
-		message += "==================\n";
-		return message;
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package ynot.lang;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,10 +74,12 @@ public class Builder {
      * @param object the concerned object.
      * @param memberName the member name.
      * @return the value.
+	 * @throws IllegalAccessException 
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalArgumentException 
      * @throws Exception if something is wrong.
 	 */
-	private Object getMember(final Object object, final String memberName)
-			throws Exception {
+	private Object getMember(final Object object, final String memberName) throws IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 		@SuppressWarnings("rawtypes")
 		Class clazz = object.getClass();
 		if (object instanceof ClassWrapper) {
@@ -93,11 +96,13 @@ public class Builder {
      * @param memberName the member name.
 	 * @param newValue the new value.
 	 * @return the new value.
+	 * @throws IllegalAccessException 
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalArgumentException 
      * @throws Exception if something is wrong.
 	 */
 	private Object setMember(
-	        final Object object, final String memberName, final Object newValue)
-			    throws Exception {
+	        final Object object, final String memberName, final Object newValue) throws IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 		@SuppressWarnings("rawtypes")
 		Class clazz = object.getClass();
 		if (object instanceof ClassWrapper) {
@@ -114,11 +119,10 @@ public class Builder {
 	 * To get a wrapper of a class.
 	 * @param className the full classname.
 	 * @return the corresponding ClassWrapper.
+	 * @throws ClassNotFoundException 
 	 * @throws Exception if something is wrong.
 	 */
-	public final ClassWrapper getClassWrapper(final String className)
-			throws Exception {
-
+	public final ClassWrapper getClassWrapper(final String className) throws ClassNotFoundException {
 		// 1 - Get Class from his name
 		@SuppressWarnings("rawtypes")
 		Class cl = ReflectionManager
@@ -136,10 +140,15 @@ public class Builder {
 	 * @param argList
 	 *            the arguments to give.
 	 * @return the return of the called method.
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 * @throws NoSuchFieldException 
 	 * @throws Exception if something went bad.
 	 */
 	public final Object call(final Object object, final String methodName,
-			final List<Object> argList) throws Exception {
+			final List<Object> argList) throws NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
 		if (object == null) {
 			throw new IllegalArgumentException(
 			        "object to use to call is null ");
@@ -154,9 +163,11 @@ public class Builder {
 		if (object instanceof ClassWrapper) {
 			clazz = ((ClassWrapper) object).getClazz();
 		}
+		try {
 		Method method = ReflectionManager.getMethod(clazz, methodName,
 				arguments.toArray(args));
-		if (method == null) {
+		return method.invoke(object, args);
+		} catch (NoSuchMethodException e) {
 			String memberName = methodName;
 			if (arguments.isEmpty()) {
 				return getMember(object, memberName);
@@ -167,7 +178,6 @@ public class Builder {
 			throw new IllegalArgumentException("method " + methodName
 					+ " not found or bad parameters");
 		}
-		return method.invoke(object, args);
 	}
 
 	/**
@@ -240,11 +250,12 @@ public class Builder {
 	 * @param shell the concerned shell.
 	 * @param structure the concerned structure.
 	 * @return the proxy object.
+	 * @throws ClassNotFoundException 
 	 * @throws Exception if something is wrong.
 	 */
 	public final Object getProxy(
 	        final List<String> interfaceNames, final String functionName,
-			final Shell shell, final Structure structure) throws Exception {
+			final Shell shell, final Structure structure) throws ClassNotFoundException {
 		@SuppressWarnings("rawtypes")
 		Class[] interfaces = new Class[interfaceNames.size()];
 		for (int i = 0; i < interfaceNames.size(); ++i) {

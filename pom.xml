@@ -60,6 +60,11 @@
 				<version>${com.ynotscript.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>ynot-lang</artifactId>
+				<version>${com.ynotscript.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>xstream</groupId>
 				<artifactId>xstream</artifactId>
 				<version>1.2.2</version>
