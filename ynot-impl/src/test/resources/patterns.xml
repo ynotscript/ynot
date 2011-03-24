@@ -8,6 +8,10 @@
 		<content>.*</content>
 	</pattern>
 	<pattern>
+		<id>null</id>
+		<content>##whitespaces##null##whitespaces##</content>
+	</pattern>
+	<pattern>
 		<id>assignment</id>
 		<content>:=</content>
 	</pattern>

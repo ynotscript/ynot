@@ -71,6 +71,7 @@ public class CatcherStorage {
 			xstream.alias("catcher", Catcher.class);
 			xstream.alias("catchers", List.class);
 			xstream.alias("match", String.class);
+			xstream.alias("unmatch", String.class);
 			List<Catcher> catchersList = (List<Catcher>) xstream
 			    .fromXML(matcherIS);
 			for (Catcher catcher : catchersList) {			
@@ -106,7 +107,9 @@ public class CatcherStorage {
 			return catcher;
 		}
 		List<String> currentMatches = ret.getMatches();
+		List<String> currentUnmatches = ret.getUnmatches();
 		List<String> newMatches = new ArrayList<String>();
+		List<String> newUnmatches = new ArrayList<String>();
 		PatternStorage storage = PatternWarehouse.getStorage();
 		
 		// For each match try to replace with real values 
@@ -114,8 +117,14 @@ public class CatcherStorage {
 			newMatches.add(storage.parse(onCurrentMatch));
 		}
 		
+		// For each match try to replace with real values 
+		for (String onCurrentUnmatch : currentUnmatches) {
+			newUnmatches.add(storage.parse(onCurrentUnmatch));
+		}
+		
 		// Replace current by new
 		ret.setMatches(newMatches);
+		ret.setUnmatches(newUnmatches);
 		
 		// Return
 		return ret;

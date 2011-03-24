@@ -2,7 +2,6 @@ package ynot.vm.test;
 
 import java.io.ByteArrayInputStream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
@@ -18,7 +17,7 @@ import ynot.vm.VirtualMachine.ContextKey;
  * 
  * @author equesada
  */
-@Ignore
+// @Ignore
 public class VirtualMachineTest {
 
 	/**
@@ -34,7 +33,20 @@ public class VirtualMachineTest {
 			vm.getConfig().put(ConfigKey.LIBRARIES, libs);
 			InputStreamRequestProvider reqProvider = new InputStreamRequestProvider(
 					"test");
-			String reqs = "echo(\"lo\")\nreadLine()";
+			String reqs = "import(\"ynot.impl.provider.request\")\n"
+					+ "import(\"ynot.vm\")\n"
+					+ "$vm := new(\"VirtualMachine\")\n"
+					+ "$provider := new(\"InputStreamRequestProvider\", {\"console\"})\n"
+					+ "$req := null\n" + "while([\"bye\" != $req])\n"
+					+ "$req := readLine()\n"
+					+ "$reqBytes := $req.getBytes(\"UTF-8\")\n"
+					+ "$bais := new(\"ByteArrayInputStream\",{$reqBytes})\n"
+					+ "$provider.setInputStream($bais)\n"
+					+ "$context := $vm.getContext($provider)\n"
+					+ "$reqParser := $context.getBean(\"requestParser\")\n"
+					+ "$provider.setParser($reqParser)\n"
+					+ "$shell := $context.getBean(\"shell\")\n"
+					+ "$shell.run()\n" + "end";
 			reqProvider.setInputStream(new ByteArrayInputStream(reqs
 					.getBytes("UTF-8")));
 			ApplicationContext context = vm.getContext(reqProvider);

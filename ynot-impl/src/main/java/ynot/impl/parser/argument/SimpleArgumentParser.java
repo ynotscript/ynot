@@ -86,7 +86,7 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 		} else if (str.equals("true") || str.equals("false")) {
 			// Boolean type
 			ret = Boolean.parseBoolean(str);
-		} else if (str.equals("null")) {
+		} else if (str.toLowerCase().equals("null")) {
 			// Null
 			ret = null;
 		} else if (str.startsWith("$")) {

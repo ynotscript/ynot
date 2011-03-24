@@ -269,8 +269,7 @@ public final class ReflectionManager {
 	 *            the namespace list to test.
 	 * @return the the Class object.
 	 * @throws ClassNotFoundException
-	 * @throws Exception
-	 *             if something is wrong.
+	 *             if not able to find the class.
 	 */
 	@SuppressWarnings("rawtypes")
 	public static Class getClass(final String classname,
@@ -291,7 +290,8 @@ public final class ReflectionManager {
 			}
 		}
 		if (cl == null) {
-			throw new ClassNotFoundException("Not able to find class " + classname);
+			throw new ClassNotFoundException("Not able to find class "
+					+ classname);
 		}
 		return cl;
 	}
@@ -324,15 +324,15 @@ public final class ReflectionManager {
 	 * @param memberName
 	 *            the member name.
 	 * @return the member.
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
-	 * @throws Exception
-	 *             if somethign is wrong.
+	 * @throws NoSuchFieldException
+	 *             if not able to find field.
+	 * @throws IllegalAccessException
+	 *             if illegal access.
 	 */
 	public static Object getMember(final Object obj,
 			@SuppressWarnings("rawtypes") final Class clazz,
-			final String memberName) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+			final String memberName) throws NoSuchFieldException,
+			IllegalAccessException {
 		Field[] fields = clazz.getFields();
 		Field field = null;
 		for (Field oneField : fields) {
@@ -343,8 +343,8 @@ public final class ReflectionManager {
 			}
 		}
 		if (field == null) {
-			throw new NoSuchFieldException("Field " + memberName + " not found in "
-					+ clazz.getName());
+			throw new NoSuchFieldException("Field '" + memberName
+					+ "' not found in " + clazz.getName());
 		}
 		return field.get(obj);
 	}
@@ -361,15 +361,15 @@ public final class ReflectionManager {
 	 * @param newValue
 	 *            the new value of the member.
 	 * @return the new value.
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
-	 * @throws Exception
-	 *             if somethign is wrong.
+	 * @throws NoSuchFieldException
+	 *             if not able to find field.
+	 * @throws IllegalAccessException
+	 *             if illegal access.
 	 */
 	public static Object setMember(final Object obj,
 			@SuppressWarnings("rawtypes") final Class clazz,
-			final String memberName, final Object newValue) throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+			final String memberName, final Object newValue)
+			throws NoSuchFieldException, IllegalAccessException {
 		Field[] fields = clazz.getFields();
 		Field field = null;
 		for (Field oneField : fields) {
@@ -380,8 +380,8 @@ public final class ReflectionManager {
 			}
 		}
 		if (field == null) {
-			throw new NoSuchFieldException("Field " + memberName + " not found in "
-					+ clazz.getName());
+			throw new NoSuchFieldException("Field " + memberName
+					+ " not found in " + clazz.getName());
 		}
 		field.set(obj, newValue);
 		return newValue;

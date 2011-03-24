@@ -4,6 +4,8 @@
 		<matches>
 			<match>##comment##</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.Empty
 		</parserClazz>
@@ -14,6 +16,8 @@
 			<match>##varname####incr##</match>
 			<match>##incr####varname##</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.IncreaseValue
 		</parserClazz>
@@ -28,6 +32,8 @@
 				##varnames####assignment####incr####varname##
 			</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.IncreaseValueWithVariables
 		</parserClazz>
@@ -38,6 +44,8 @@
 			<match>##varname####decr##</match>
 			<match>##decr####varname##</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.DecreaseValue
 		</parserClazz>
@@ -52,6 +60,8 @@
 				##varnames####assignment####decr####varname##
 			</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.DecreaseValueWithVariables
 		</parserClazz>
@@ -62,6 +72,9 @@
 			<match>##methodname##</match>
 			<match>##methodname####emptyParametersBlock##</match>
 		</matches>
+		<unmatches>
+			<unmatch>##null##</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.MethodName
 		</parserClazz>
@@ -72,6 +85,9 @@
 			<match>##callname##</match>
 			<match>##callname####emptyParametersBlock##</match>
 		</matches>
+		<unmatches>
+			<unmatch>##null##</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.CallName
 		</parserClazz>
@@ -84,6 +100,11 @@
 				##varnames####assignment####methodname####emptyParametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>##varnames####assignment####null##</unmatch>
+			<unmatch>##varnames####assignment####null####emptyParametersBlock##
+			</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.MethodNameWithVariables
 		</parserClazz>
@@ -96,6 +117,11 @@
 				##varnames####assignment####callname####emptyParametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>##varnames####assignment####null##</unmatch>
+			<unmatch>##varnames####assignment####null####emptyParametersBlock##
+			</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.CallNameWithVariables
 		</parserClazz>
@@ -105,6 +131,9 @@
 		<matches>
 			<match>##methodname####parametersBlock##</match>
 		</matches>
+		<unmatches>
+			<unmatch>##null####parametersBlock##</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.MethodNameWithParameters
 		</parserClazz>
@@ -114,6 +143,9 @@
 		<matches>
 			<match>##callname####parametersBlock##</match>
 		</matches>
+		<unmatches>
+			<unmatch>##null####parametersBlock##</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.CallNameWithParameters
 		</parserClazz>
@@ -125,6 +157,10 @@
 				##varnames####assignment####methodname####parametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>##varnames####assignment####null####parametersBlock##
+			</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.MethodNameWithVariablesAndParameters
 		</parserClazz>
@@ -135,6 +171,10 @@
 			<match>##varnames####assignment####callname####parametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>##varnames####assignment####null####parametersBlock##
+			</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.CallNameWithVariablesAndParameters
 		</parserClazz>
@@ -145,6 +185,8 @@
 			<match>##varname##.##methodname##</match>
 			<match>##varname##.##methodname####emptyParametersBlock##</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.InvokeMemberFunction
 		</parserClazz>
@@ -155,6 +197,9 @@
 			<match>##varname##.##methodname####parametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>##varname##.##null####parametersBlock##</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.InvokeMemberFunctionWithParameters
 		</parserClazz>
@@ -169,6 +214,14 @@
 				##varnames####assignment####varname##.##methodname####emptyParametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>
+				##varnames####assignment####varname##.##null##
+			</unmatch>
+			<unmatch>
+				##varnames####assignment####varname##.##null####emptyParametersBlock##
+			</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.InvokeMemberFunctionWithVariables
 		</parserClazz>
@@ -180,6 +233,11 @@
 				##varnames####assignment####varname##.##methodname####parametersBlock##
 			</match>
 		</matches>
+		<unmatches>
+			<unmatch>
+				##varnames####assignment####varname##.##null####parametersBlock##
+			</unmatch>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.InvokeMemberFunctionWithVariablesAndParameters
 		</parserClazz>
@@ -189,6 +247,8 @@
 		<matches>
 			<match>##any####operation####any##</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.Operation
 		</parserClazz>
@@ -196,8 +256,11 @@
 	<catcher>
 		<id>Allocation</id>
 		<matches>
+			<match>##varnames####assignment####null##</match>
 			<match>##allocation##</match>
 		</matches>
+		<unmatches>
+		</unmatches>
 		<parserClazz>
 			ynot.impl.parser.request.tinyparser.Allocation
 		</parserClazz>
