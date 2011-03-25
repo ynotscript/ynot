@@ -11,10 +11,9 @@ import ynot.core.parser.argument.ArgumentParser;
 import ynot.core.parser.request.RequestParser;
 import ynot.impl.parser.argument.SimpleArgumentParser;
 
-
 /**
- * Mini parser for method with parameters.
- * Example: toto("abc")
+ * Mini parser for method with parameters. Example: toto("abc")
+ * 
  * @author equesada
  */
 public class MethodNameWithParameters implements RequestParser<String> {
@@ -39,15 +38,25 @@ public class MethodNameWithParameters implements RequestParser<String> {
 	}
 
 	@Override
-	public final List<Request> parse(final String str)
-	    throws UnparsableRequestException {
-		List<Request> ret = simpleMethodNameMiniParser.parse(str
-		    .substring(0, str.indexOf("(")));
-		String params = str.substring(str.indexOf("(")).trim();
+	public final List<Request> parse(final String newStr)
+			throws UnparsableRequestException {
+		String str = newStr.trim();
+		String beforeParam = "";
+		String afterParam = "";
+		int separatorPos = str.indexOf('(');
+		if (separatorPos == -1) {
+			separatorPos = str.indexOf(' ');
+			beforeParam = "(\"";
+			afterParam = "\")";
+		}
+		List<Request> ret = simpleMethodNameMiniParser.parse(str.substring(0,
+				separatorPos));
+
+		String params = beforeParam + str.substring(separatorPos).trim()
+				+ afterParam;
 		params = params.substring(1, params.length() - 1);
 		try {
-			ret.get(0).setGivenParameters(
-			    updateGivenParameters(params));
+			ret.get(0).setGivenParameters(updateGivenParameters(params));
 		} catch (UnparsableArgumentException e) {
 			throw new UnparsableRequestException(e);
 		}
@@ -56,12 +65,15 @@ public class MethodNameWithParameters implements RequestParser<String> {
 
 	/**
 	 * To get arguments treated by the argumentParser.
-	 * @param params the initial parameters.
+	 * 
+	 * @param params
+	 *            the initial parameters.
 	 * @return the treated parameters.
-	 * @throws UnparsableArgumentException if not able to parse arguments.
+	 * @throws UnparsableArgumentException
+	 *             if not able to parse arguments.
 	 */
 	private Object[] updateGivenParameters(final String params)
-	    throws UnparsableArgumentException {
+			throws UnparsableArgumentException {
 
 		String[] args = splitArguments(params);
 		Object[] arguments = new Object[args.length];
@@ -74,7 +86,9 @@ public class MethodNameWithParameters implements RequestParser<String> {
 
 	/**
 	 * To split a string into Lists and SubLists.
-	 * @param strToSplit the string to split.
+	 * 
+	 * @param strToSplit
+	 *            the string to split.
 	 * @return the tree structure of list.
 	 */
 	private String[] splitArguments(final String strToSplit) {
@@ -139,8 +153,7 @@ public class MethodNameWithParameters implements RequestParser<String> {
 	}
 
 	@Override
-	public void setListeners(
-	        final List<RequestParserListener<String>> listeners) {
+	public void setListeners(final List<RequestParserListener<String>> listeners) {
 	}
 
 }

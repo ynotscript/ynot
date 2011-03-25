@@ -130,6 +130,7 @@
 		<id>MethodNameWithParameters</id>
 		<matches>
 			<match>##methodname####parametersBlock##</match>
+			<match>##methodname####parameters##</match>
 		</matches>
 		<unmatches>
 			<unmatch>##null####parametersBlock##</unmatch>
