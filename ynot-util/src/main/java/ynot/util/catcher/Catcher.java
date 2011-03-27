@@ -1,5 +1,6 @@
 package ynot.util.catcher;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,7 +56,7 @@ public class Catcher implements Cloneable {
 	 *            the new id to set
 	 */
 	public final void setId(final String newId) {
-		this.id = newId;
+		this.id = newId.trim();
 	}
 
 	/**
@@ -77,7 +78,10 @@ public class Catcher implements Cloneable {
 	 *            the matches to set
 	 */
 	public final void setMatches(final List<String> newMatches) {
-		this.matches = newMatches;
+		this.matches = new ArrayList<String>();
+		for (String oneMatch : newMatches) {
+			this.matches.add(oneMatch.trim());
+		}
 	}
 
 	/**
@@ -92,7 +96,7 @@ public class Catcher implements Cloneable {
 	 *            the parserClazz to set
 	 */
 	public final void setParserClazz(final String newClazz) {
-		this.parserClazz = newClazz;
+		this.parserClazz = newClazz.trim();
 	}
 
 	/**
@@ -103,12 +107,11 @@ public class Catcher implements Cloneable {
 	 * @return true if it matchs else false.
 	 */
 	public final boolean match(final String str) {
-		search:
-		for (String onMatch : matches) {
+		search: for (String onMatch : matches) {
 			if (java.util.regex.Pattern.matches(onMatch, str)) {
 				for (String onUnmatch : unmatches) {
 					if (java.util.regex.Pattern.matches(onUnmatch, str)) {
-						continue search; 
+						continue search;
 					}
 				}
 				return true;
@@ -127,7 +130,10 @@ public class Catcher implements Cloneable {
 	 *            the unmatches to set
 	 */
 	public final void setUnmatches(final List<String> newUnmatches) {
-		this.unmatches = newUnmatches;
+		this.unmatches = new ArrayList<String>();
+		for (String oneUnmatch : newUnmatches) {
+			this.unmatches.add(oneUnmatch.trim());
+		}
 	}
 
 	/**

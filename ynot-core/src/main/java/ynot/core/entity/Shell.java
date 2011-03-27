@@ -26,9 +26,9 @@ import ynot.util.variable.VariableManager.Scope;
 public class Shell implements Cloneable {
 
 	/**
-	 * To know if the shell is initialized.
+	 * To know if the shell is in lazy mode.
 	 */
-	private Boolean initialized;
+	private Boolean lazyLoading;
 
 	/**
 	 * The defaut namespace of the variables.
@@ -36,26 +36,12 @@ public class Shell implements Cloneable {
 	private static final String DEFAULT_NAMESPACE = "default";
 
 	/**
-	 * This method will load all the commands from the commandProvider in a
-	 * local list.
-	 * 
-	 * @throws UnprovidableCommandException
-	 *             if commands aren't supplied
-	 */
-	public final void init() throws UnprovidableCommandException {
-		if (!initialized) {
-			loadCommands();
-			initialized = true;
-		}
-	}
-
-	/**
 	 * Load all the commands.
 	 * 
 	 * @throws UnprovidableCommandException
 	 *             if commands aren't supplied
 	 */
-	private void loadCommands() throws UnprovidableCommandException {
+	private void loadAllCommands() throws UnprovidableCommandException {
 		int step = 1;
 		while (commandProvider.hasNext()) {
 			commands.put(step++, commandProvider.getNext());
@@ -63,15 +49,25 @@ public class Shell implements Cloneable {
 	}
 
 	/**
-	 * It will execute all the commands.
-	 * @throws UnprovidableCommandException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
-	 * @throws CloneNotSupportedException 
-	 * @throws UnprovidableResourceException 
+	 * It will load and execute all the commands.
+	 * 
+	 * @throws UnprovidableCommandException
+	 *             if a command is not providable.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is not providable.
+	 * @throws CloneNotSupportedException
+	 *             if the clone is not supported.
+	 * @throws IllegalAccessException
+	 *             if there is an illegal access.
+	 * @throws InvocationTargetException
+	 *             if there is an issue with the invocation.
 	 */
-	public final void run() throws UnprovidableCommandException, UnprovidableResourceException, CloneNotSupportedException, IllegalAccessException, InvocationTargetException {
-		init();
+	public final void run() throws UnprovidableCommandException,
+			UnprovidableResourceException, CloneNotSupportedException,
+			IllegalAccessException, InvocationTargetException {
+		if (!lazyLoading) {
+			loadAllCommands();
+		}
 		while (hasStep()) {
 			runStep();
 			nextStep();
@@ -82,9 +78,15 @@ public class Shell implements Cloneable {
 	 * To know if there is still commands to execute.
 	 * 
 	 * @return true if it's the case else false.
+	 * @throws UnprovidableCommandException
+	 *             if a command is not providable.
 	 */
-	public final boolean hasStep() {
-		return (getStep() <= commands.size());
+	public final boolean hasStep() throws UnprovidableCommandException {
+		if (lazyLoading) {
+			return commandProvider.hasNext();
+		} else {
+			return (getStep() <= commands.size());
+		}
 	}
 
 	/**
@@ -98,15 +100,25 @@ public class Shell implements Cloneable {
 
 	/**
 	 * Run the current step.
-	 * @throws CloneNotSupportedException 
-	 * @throws UnprovidableResourceException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
+	 * 
+	 * @throws CloneNotSupportedException
+	 *             if the clone is not supported.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is not providable.
+	 * @throws InvocationTargetException
+	 *             in there is a problem with the invocation.
+	 * @throws IllegalAccessException
+	 *             if there is an illegal access.
+	 * @throws UnprovidableCommandException
+	 *             is a command is not providable.
 	 */
-	public final void runStep() throws UnprovidableResourceException, CloneNotSupportedException, IllegalAccessException, InvocationTargetException  {
+	public final void runStep() throws UnprovidableResourceException,
+			CloneNotSupportedException, IllegalAccessException,
+			InvocationTargetException, UnprovidableCommandException {
 
-		while (hasCommandToExecute()) {
-			Command currentCommand = getCurrentCommand();
+		List<Command> cmds = getCurrentCommandList();
+		while (hasCommandToExecute(cmds)) {
+			Command currentCommand = cmds.get(progress.getSubStep() - 1);
 			if (hasToBeInvoked(currentCommand)) {
 				Command cleanedCommand = cleanCommand(currentCommand);
 				Object result = cleanedCommand.invoke();
@@ -122,29 +134,32 @@ public class Shell implements Cloneable {
 	/**
 	 * Check if there is at least a command to execute.
 	 * 
+	 * @param cmds
+	 *            the current commands.
+	 * 
 	 * @return true if it's the case.
+	 * @throws UnprovidableCommandException
+	 *             if a command is not providable.
 	 */
-	private boolean hasCommandToExecute() {
-		return progress.getSubStep() <= getCurrentCommandList().size();
+	private boolean hasCommandToExecute(final List<Command> cmds)
+			throws UnprovidableCommandException {
+		return progress.getSubStep() <= cmds.size();
 	}
 
 	/**
 	 * Get the current commands to execute.
 	 * 
 	 * @return the current commands to execute.
+	 * @throws UnprovidableCommandException
+	 *             if a command is not providable.
 	 */
-	private List<Command> getCurrentCommandList() {
-		return commands.get(progress.getStep());
-	}
-
-	/**
-	 * Get the current command to execute.
-	 * 
-	 * @return the current command to execute.
-	 */
-	private Command getCurrentCommand() {
-		List<Command> cmds = getCurrentCommandList();
-		return cmds.get(progress.getSubStep() - 1);
+	private List<Command> getCurrentCommandList()
+			throws UnprovidableCommandException {
+		if (lazyLoading) {
+			return commandProvider.getNext();
+		} else {
+			return commands.get(progress.getStep());
+		}
 	}
 
 	/**
@@ -196,10 +211,6 @@ public class Shell implements Cloneable {
 			throws UnprovidableResourceException {
 		if (arg == null) {
 			return null;
-		}
-		// we have to be sure to use itself
-		if (arg instanceof Shell) {
-			return this;
 		}
 		try {
 			List<Object> list = (List<Object>) arg;
@@ -315,7 +326,7 @@ public class Shell implements Cloneable {
 	/**
 	 * All the existing instances of the shell.
 	 */
-	private static final Map<ClassLoader, Shell> INSTANCES = new HashMap<ClassLoader, Shell>();
+	private static final Map<Long, Shell> INSTANCES = new HashMap<Long, Shell>();
 
 	// Constructor(s)
 
@@ -325,8 +336,8 @@ public class Shell implements Cloneable {
 	 * @throws UnprovidableCommandException
 	 */
 	public Shell() {
-		initialized = false;
-		INSTANCES.put(getClass().getClassLoader(), this);
+		setLazyLoading(false);
+		INSTANCES.put(Thread.currentThread().getId(), this);
 		progress = new Progress();
 		lock = new Lock();
 		commands = new TreeMap<Integer, List<Command>>();
@@ -556,7 +567,7 @@ public class Shell implements Cloneable {
 	 * @return the current instance.
 	 */
 	public static Shell getInstance() {
-		return INSTANCES.get(Shell.class.getClassLoader());
+		return INSTANCES.get(Thread.currentThread().getId());
 	}
 
 	/**
@@ -566,6 +577,21 @@ public class Shell implements Cloneable {
 	 */
 	public final String previous() {
 		return variableManager.previous();
+	}
+
+	/**
+	 * @return the lazyLoading
+	 */
+	public final Boolean getLazyLoading() {
+		return lazyLoading;
+	}
+
+	/**
+	 * @param newLazyLoading
+	 *            the lazyLoading to set
+	 */
+	public final void setLazyLoading(final Boolean newLazyLoading) {
+		this.lazyLoading = newLazyLoading;
 	}
 
 }

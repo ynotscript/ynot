@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PipedInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,11 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 	/**
 	 * The reader to use.
 	 */
+	private InputStream in;
+
+	/**
+	 * The reader to use when it's not an Piped version.
+	 */
 	private BufferedReader reader;
 
 	/**
@@ -38,6 +44,7 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 	 */
 	public final void setInputStream(final InputStream newStream) {
 		reader = new BufferedReader(new InputStreamReader(newStream));
+		in = newStream;
 	}
 
 	/**
@@ -71,13 +78,7 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 		listeners = new ArrayList<RequestProviderListener>();
 	}
 
-	/**
-	 * Not used.
-	 * 
-	 * @param info
-	 *            key.
-	 * @return null.
-	 */
+	@Override
 	public final List<Request> get(final String info) {
 		return null;
 	}
@@ -91,7 +92,12 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 	 */
 	public final List<Request> getNext() throws UnprovidableRequestException {
 		try {
-			String line = reader.readLine();
+			String line = null;
+			if (in instanceof PipedInputStream) {
+				line = readLine((PipedInputStream) in);
+			} else {
+				line = reader.readLine();
+			}
 			if (null == line) {
 				return new ArrayList<Request>();
 			}
@@ -105,6 +111,30 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 		} catch (Exception e) {
 			throw new UnprovidableRequestException(e);
 		}
+	}
+
+	/**
+	 * To read a line from a pipe.
+	 * 
+	 * @param inStream
+	 *            the piped stream.
+	 * @return the line.
+	 * @throws IOException
+	 *             if not able to read.
+	 */
+	public final String readLine(final PipedInputStream inStream)
+			throws IOException {
+		String input = "";
+		do {
+			int available = inStream.available();
+			if (available == 0) {
+				break;
+			}
+			byte[] b = new byte[available];
+			inStream.read(b);
+			input = input + new String(b, 0, b.length);
+		} while (!input.endsWith("\n") && !input.endsWith("\r\n"));
+		return input;
 	}
 
 	/**
@@ -138,15 +168,14 @@ public class InputStreamRequestProvider implements RequestProvider<String> {
 		return true;
 	}
 
-	/**
-	 * To know if the provider have another resource to give.
-	 * 
-	 * @return true if there is another resource.
-	 */
 	@Override
 	public final boolean hasNext() throws UnprovidableRequestException {
 		try {
-			return reader.ready();
+			if (in instanceof PipedInputStream) {
+				return ((PipedInputStream) in).available() > 0;
+			} else {
+				return reader.ready();
+			}
 		} catch (IOException e) {
 			throw new UnprovidableRequestException(e);
 		}

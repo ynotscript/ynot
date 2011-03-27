@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import ynot.core.entity.Definition;
 import ynot.core.exception.parser.UnparsableDefinitionException;
+import ynot.core.exception.provider.UnprovidableDefinitionException;
 import ynot.core.listener.provider.definition.DefinitionProviderListener;
 import ynot.core.parser.definition.DefinitionParser;
 import ynot.core.provider.definition.DefinitionProvider;
@@ -242,17 +243,23 @@ public class PropertiesDefinitionProvider implements DefinitionProvider<String> 
 	 * @param word
 	 *            the word.
 	 * @return the resource.
+	 * @throws UnprovidableDefinitionException
+	 *             if the definition doesn't exist.
 	 */
 	@Override
-	public final Definition get(final String word) {
+	public final Definition get(final String word)
+			throws UnprovidableDefinitionException {
 		init();
 		Definition def = getDefinition(word.toLowerCase());
 		def = preNoticeListeners(def);
-		if (postNoticeListeners(def)) {
-			return def;
-		} else {
-			return null;
+		if (!postNoticeListeners(def)) {
+			def = null;
 		}
+		if (null == def) {
+			throw new UnprovidableDefinitionException("<" + providerName + "\\"
+					+ word + ">");
+		}
+		return def;
 	}
 
 	/**

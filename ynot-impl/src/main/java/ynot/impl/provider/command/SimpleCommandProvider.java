@@ -3,12 +3,12 @@ package ynot.impl.provider.command;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
+
+import org.apache.commons.lang.ClassUtils;
 
 import ynot.core.entity.Command;
 import ynot.core.entity.Definition;
@@ -33,29 +33,14 @@ import ynot.util.reflect.ReflectionManager;
 public class SimpleCommandProvider implements CommandProvider<Integer> {
 
 	/**
-	 * To know if the provider is initialized.
-	 */
-	private Boolean initialized;
-
-	/**
 	 * The provider name.
 	 */
 	private final String providerName;
 
 	/**
-	 * The list of commands to execute (step => commands).
-	 */
-	private final Map<Integer, List<Command>> commands;
-
-	/**
 	 * The listeners to call when a command is provided.
 	 */
 	private final List<CommandProviderListener> listeners;
-
-	/**
-	 * The current step (line) of the execution.
-	 */
-	private Integer currentStep;
 
 	/**
 	 * The request provider.
@@ -76,10 +61,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * The default constructor.
 	 */
 	public SimpleCommandProvider() {
-		initialized = false;
-		providerName = "SimpleCommandProvider";
-		currentStep = 1;
-		commands = new TreeMap<Integer, List<Command>>();
+		providerName = ClassUtils.getShortClassName(this.getClass());
 		listeners = new ArrayList<CommandProviderListener>();
 		resourceProviders = new HashMap<String, ResourceProvider<String>>();
 		definitionProviders = new HashMap<String, DefinitionProvider<String>>();
@@ -93,8 +75,22 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	@Override
 	public final List<Command> get(final Integer line)
 			throws UnprovidableCommandException {
+		return null;
+	}
+
+	@Override
+	public final boolean hasNext() throws UnprovidableCommandException {
 		try {
-			List<Command> cmds = commands.get(line);
+			return requestProvider.hasNext();
+		} catch (UnprovidableRequestException e) {
+			throw new UnprovidableCommandException(e);
+		}
+	}
+
+	@Override
+	public final List<Command> getNext() throws UnprovidableCommandException {
+		try {
+			List<Command> cmds = getNextCommands();
 			noticePreCommandsListeners(cmds);
 			boolean go = noticePostCommandsListeners(cmds);
 			if (go) {
@@ -102,10 +98,238 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 			} else {
 				return new ArrayList<Command>();
 			}
-		} catch (UnprovidableResourceException e) {
-			throw new UnprovidableCommandException(
-					"UnprovidableResourceException", e);
+		} catch (Exception e) {
+			throw new UnprovidableCommandException(e);
 		}
+	}
+
+	/**
+	 * To get the next commands.
+	 * 
+	 * @return the next commands.
+	 * @throws UnprovidableRequestException
+	 *             if a request is not providable.
+	 * @throws UnprovidableDefinitionException
+	 *             if a definition is not providable.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is not providable.
+	 * @throws NoSuchMethodException
+	 *             if a method is missing.
+	 */
+	public final List<Command> getNextCommands()
+			throws UnprovidableRequestException,
+			UnprovidableDefinitionException, UnprovidableResourceException,
+			NoSuchMethodException {
+		List<Command> commands = new ArrayList<Command>();
+		List<Request> requests = requestProvider.getNext();
+		for (Request req : requests) {
+			if (!req.isActive()) {
+				commands.add(null);
+				continue;
+			}
+			Definition def = getDefinition(req);
+			Resource res = getResource(def);
+			int argIndex = 0;
+			for (String methodName : def.getMethodNamesToCall()) {
+				Command cmd = new Command();
+				argIndex = fillCommand(cmd, res, def, methodName, req, argIndex);
+				commands.add(cmd);
+			}
+		}
+		return commands;
+	}
+
+	/**
+	 * To get the definition of a request.
+	 * 
+	 * @param req
+	 *            the concerned request.
+	 * @return the definition.
+	 * @throws UnprovidableDefinitionException
+	 *             if a definition is missing.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is missing.
+	 */
+	private Definition getDefinition(final Request req)
+			throws UnprovidableDefinitionException,
+			UnprovidableResourceException {
+		String pName = req.getDefinitionProviderName();
+		String word = req.getWordToUse();
+		Definition def;
+		if (null == pName) {
+			def = getDefinition(word);
+		} else {
+			def = getDefinition(pName, word);
+		}
+		updateDefinitionWithResources(def);
+		return def;
+	}
+
+	/**
+	 * To get a definition of a word.
+	 * 
+	 * @param word
+	 *            the concerned word.
+	 * @return the definition.
+	 * @throws UnprovidableDefinitionException
+	 *             if there is no definition.
+	 */
+	private Definition getDefinition(final String word)
+			throws UnprovidableDefinitionException {
+		for (String pName : getDefinitionProviderNames()) {
+			try {
+				return getDefinition(pName, word);
+			} catch (UnprovidableDefinitionException e) {
+				continue;
+			}
+		}
+		throw new UnprovidableDefinitionException("<" + word + ">");
+	}
+
+	/**
+	 * To get a definition of a word giving the provider.
+	 * 
+	 * @param pName
+	 *            the concerned provider.
+	 * @param word
+	 *            the concerned word.
+	 * @return the definition.
+	 * @throws UnprovidableDefinitionException
+	 *             if the definition is missing.
+	 */
+	private Definition getDefinition(final String pName, final String word)
+			throws UnprovidableDefinitionException {
+		DefinitionProvider<String> defProvider = definitionProviders.get(pName);
+		Definition def = defProvider.get(word);
+		return def;
+	}
+
+	/**
+	 * Update definition with available resources.
+	 * 
+	 * @param def
+	 *            the definition to update.
+	 * @throws UnprovidableResourceException
+	 *             thrown when missing resources.
+	 */
+	@SuppressWarnings("rawtypes")
+	private void updateDefinitionWithResources(final Definition def)
+			throws UnprovidableResourceException {
+		Map<String, Class[]> update = new HashMap<String, Class[]>();
+		for (String methodName : def.getMethodNamesToCall()) {
+			Map<Integer, Object> values = def.getPredefinedValues(methodName);
+			Class[] parameterTypes = def.getParameterTypes(methodName);
+			for (Entry<Integer, Object> entry : values.entrySet()) {
+				Integer position = entry.getKey();
+				Object predefinedValue = entry.getValue();
+				if (predefinedValue instanceof Resource) {
+					fillResource((Resource) predefinedValue);
+					Object realValue = ((Resource) predefinedValue)
+							.getContent();
+					parameterTypes[position] = realValue.getClass();
+					values.put(position, realValue);
+				}
+			}
+			update.put(methodName, parameterTypes);
+		}
+		for (Entry<String, Class[]> onUpdate : update.entrySet()) {
+			def.setParameterTypes(onUpdate.getKey(), onUpdate.getValue());
+		}
+	}
+
+	/**
+	 * To get the resource of a definition.
+	 * 
+	 * @param def
+	 *            the concerned definition.
+	 * @return The definition.
+	 * @throws UnprovidableResourceException
+	 *             if the resource is missing.
+	 */
+	private Resource getResource(final Definition def)
+			throws UnprovidableResourceException {
+		String rpn = def.getResourceProviderName();
+		ResourceProvider<String> resourceProvider = getResourceProvider(rpn);
+		return resourceProvider.get(def.getResourceNameToUse());
+	}
+
+	/**
+	 * To get the resource provider.
+	 * 
+	 * @param newProviderName
+	 *            the name of the provider
+	 * @return the resource provider.
+	 * @throws UnprovidableResourceException
+	 *             if the resource provider doesn't exist.
+	 */
+	public final ResourceProvider<String> getResourceProvider(
+			final String newProviderName) throws UnprovidableResourceException {
+		ResourceProvider<String> ret = resourceProviders.get(newProviderName);
+		if (null == ret) {
+			String msg = "Resource Provider missing \"" + newProviderName
+					+ "\"";
+			throw new UnprovidableResourceException(msg);
+		}
+		return ret;
+	}
+
+	/**
+	 * To build a command.
+	 * 
+	 * @param cmd
+	 *            the current command to fill.
+	 * @param res
+	 *            the concerned resource.
+	 * @param def
+	 *            the concerned definition.
+	 * @param methodName
+	 *            the methodName to call.
+	 * @param req
+	 *            the current request.
+	 * @param argIndex
+	 *            the current argument index.
+	 * @return the command.
+	 * @throws NoSuchMethodException
+	 *             if the method doesn't exist.
+	 * @throws UnprovidableResourceException
+	 *             if a resource is missing.
+	 */
+	private int fillCommand(final Command cmd, final Resource res,
+			final Definition def, final String methodName, final Request req,
+			final int argIndex) throws NoSuchMethodException,
+			UnprovidableResourceException {
+		Object obj = res.getContent();
+		cmd.setResourceToUse(obj);
+		Method method = getMethod(def, methodName, obj);
+		cmd.setMethodToCall(method);
+		// Set the argument to give to the command
+		Integer newArgIndex = setArgumentsToGive(cmd,
+				updateResources(req.getGivenParameters()),
+				def.getPredefinedValues(methodName),
+				method.getParameterTypes().length, argIndex);
+		// flag the variable to fill (on return)
+		setAttachedVarName(cmd, req.getVariableNames());
+		return newArgIndex;
+	}
+
+	/**
+	 * To get a method.
+	 * 
+	 * @param def
+	 *            the concerned definition.
+	 * @param methodName
+	 *            the method name.
+	 * @param obj
+	 *            the current object.
+	 * @return the method.
+	 * @throws NoSuchMethodException
+	 *             if the method doesn't exist.
+	 */
+	private Method getMethod(final Definition def, final String methodName,
+			final Object obj) throws NoSuchMethodException {
+		Method method = ReflectionManager.getMethod(obj.getClass(), methodName,
+				def.getParameterTypes(methodName));
+		return method;
 	}
 
 	/**
@@ -122,7 +346,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 		ArrayList<Command> cleanedList = new ArrayList<Command>();
 		for (Command onCommand : list) {
 			cleanArgumentsToGive(onCommand);
-			if (cleanResourceToUse(onCommand)) {
+			if (cleanResources(onCommand)) {
 				cleanedList.add(onCommand);
 			}
 		}
@@ -138,7 +362,7 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 * @throws UnprovidableResourceException
 	 *             if a resource is missing.
 	 */
-	private boolean cleanResourceToUse(final Command onCommand)
+	private boolean cleanResources(final Command onCommand)
 			throws UnprovidableResourceException {
 		if (onCommand == null) {
 			return false;
@@ -175,44 +399,6 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 		onCommand.setArgumentsToGive(args);
 	}
 
-	@Override
-	public final boolean hasNext() throws UnprovidableCommandException {
-		try {
-			init();
-		} catch (Exception e) {
-			throw new UnprovidableCommandException(e);
-		}
-		return (getStep() <= commands.size());
-	}
-
-	@Override
-	public final List<Command> getNext() throws UnprovidableCommandException {
-		try {
-			init();
-		} catch (Exception e) {
-			throw new UnprovidableCommandException(e);
-		}
-		return get(currentStep++);
-	}
-
-	/**
-	 * To add an invokable commands.
-	 * 
-	 * @param step
-	 *            The step of these commands
-	 * @param cmds
-	 *            The commands to add
-	 */
-	private void addCommands(final Integer step, final List<Command> cmds) {
-		if (cmds == null || cmds.size() == 0) {
-			addCommand(step, null);
-		} else {
-			for (Command cmd : cmds) {
-				addCommand(step, cmd);
-			}
-		}
-	}
-
 	/**
 	 * Call the preNotice method on each addCommandListener.
 	 * 
@@ -243,112 +429,6 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	}
 
 	/**
-	 * To add an invokable command.
-	 * 
-	 * @param step
-	 *            The step of this command
-	 * @param cmd
-	 *            The command to add
-	 */
-	private void addCommand(final Integer step, final Command cmd) {
-		if (commands.get(step) == null) {
-			commands.put(step, new LinkedList<Command>());
-		}
-		commands.get(step).add(cmd);
-	}
-
-	/**
-	 * To step getter.
-	 * 
-	 * @return the current step.
-	 */
-	private int getStep() {
-		return currentStep;
-	}
-
-	/**
-	 * To parse make commands from the requests.
-	 * 
-	 * @throws UnprovidableRequestException if not able to get a request.
-	 * @throws UnprovidableDefinitionException if not able to get a definition.
-	 * @throws UnprovidableResourceException if not able to get a resource.
-	 * @throws NoSuchMethodException if not able to get a method.
-	 */
-	public final void init() throws UnprovidableRequestException,
-			UnprovidableDefinitionException, UnprovidableResourceException,
-			NoSuchMethodException {
-		if (initialized) {
-			return;
-		}
-		int step = 0;
-
-		// While any request is present
-		while (requestProvider.hasNext()) {
-
-			step++;
-			int subStep = -1;
-
-			// for each request of this step
-			List<Request> requestsOfThisStep = requestProvider.getNext();
-			List<Command> commandsOfThisStep = new ArrayList<Command>();
-
-			for (Request req : requestsOfThisStep) {
-
-				subStep++;
-
-				// if the request is not active, put a null command
-				if (!req.isActive()) {
-					commandsOfThisStep.add(null);
-					continue;
-				}
-
-				// get the definition
-				Definition def = getDefinition(req);
-
-				// get the resource
-				String rpn = def.getResourceProviderName();
-				ResourceProvider<String> resourceProvider = getResourceProvider(rpn);
-
-				Resource res = resourceProvider.get(def.getResourceNameToUse());
-
-				// update the definition to set the real resources
-				updateDefinitionWithResources(def);
-
-				Object obj = res.getContent();
-
-				// For each method to call on the resource add a "command"
-				// object.
-				int start = 0;
-				for (String methodName : def.getMethodNamesToCall()) {
-
-					// Get the Method object
-					Method method = ReflectionManager.getMethod(obj.getClass(),
-							methodName, def.getParameterTypes(methodName));
-
-					// Build the Command object
-					Command cmd = new Command();
-					cmd.setResourceToUse(obj);
-					cmd.setMethodToCall(method);
-
-					// Set the argument to give to the command
-					start = setArgumentsToGive(cmd,
-							updateResources(req.getGivenParameters()),
-							def.getPredefinedValues(methodName),
-							method.getParameterTypes().length, start);
-
-					// flag the variable to fill (on return)
-					setAttachedVarName(cmd, req.getVariableNames());
-
-					// Add the command at the end of the list
-					commandsOfThisStep.add(cmd);
-				}
-			}
-			addCommands(step, commandsOfThisStep);
-		}
-		initialized = true;
-	}
-
-	/**
 	 * Update the parameters with the given parameters.
 	 * 
 	 * @param givenParameters
@@ -374,43 +454,6 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	}
 
 	/**
-	 * To get the definition from a request.
-	 * 
-	 * @param req
-	 *            the request to check.
-	 * @return the definition.
-	 * @throws UnprovidableDefinitionException
-	 *             if definition not provided.
-	 */
-	private Definition getDefinition(final Request req)
-			throws UnprovidableDefinitionException {
-		Definition def = null;
-		if (req.getDefinitionProviderName() != null) {
-			def = definitionProviders.get(req.getDefinitionProviderName()).get(
-					req.getWordToUse());
-			if (def != null) {
-				return def;
-			}
-			throw new UnprovidableDefinitionException("<" + req.getWordToUse()
-					+ ">");
-		} else {
-			for (String pName : getDefinitionProviderNames()) {
-				try {
-					def = definitionProviders.get(pName)
-							.get(req.getWordToUse());
-					if (def != null) {
-						return def;
-					}
-				} catch (UnprovidableDefinitionException e) {
-					continue;
-				}
-			}
-		}
-		throw new UnprovidableDefinitionException("<" + req.getWordToUse()
-				+ ">");
-	}
-
-	/**
 	 * The requestProvider setter.
 	 * 
 	 * @param newRequestProvider
@@ -428,26 +471,6 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 */
 	public final RequestProvider<String> getRequestProvider() {
 		return requestProvider;
-	}
-
-	/**
-	 * To get the resource provider.
-	 * 
-	 * @param newProviderName
-	 *            the name of the provider
-	 * @return the resource provider.
-	 * @throws UnprovidableResourceException
-	 *             if the resource provider doesn't exist.
-	 */
-	public final ResourceProvider<String> getResourceProvider(
-			final String newProviderName) throws UnprovidableResourceException {
-		ResourceProvider<String> ret = resourceProviders.get(newProviderName);
-		if (null == ret) {
-			String msg = "Resource Provider missing \"" + newProviderName
-					+ "\"";
-			throw new UnprovidableResourceException(msg);
-		}
-		return ret;
 	}
 
 	/**
@@ -539,47 +562,6 @@ public class SimpleCommandProvider implements CommandProvider<Integer> {
 	 */
 	public final void clearListener() {
 		listeners.clear();
-	}
-
-	/**
-	 * Update definition with available resources.
-	 * 
-	 * @param def
-	 *            the definition to update.
-	 * @throws UnprovidableResourceException
-	 *             thrown when missing resources.
-	 */
-	@SuppressWarnings("rawtypes")
-	private void updateDefinitionWithResources(final Definition def)
-			throws UnprovidableResourceException {
-
-		Map<String, Class[]> update = new HashMap<String, Class[]>();
-
-		for (String methodName : def.getMethodNamesToCall()) {
-
-			Map<Integer, Object> values = def.getPredefinedValues(methodName);
-
-			Class[] parameterTypes = def.getParameterTypes(methodName);
-
-			for (Entry<Integer, Object> entry : values.entrySet()) {
-				Integer position = entry.getKey();
-				Object predefinedValue = entry.getValue();
-
-				if (predefinedValue instanceof Resource) {
-					fillResource((Resource) predefinedValue);
-					Object realValue = ((Resource) predefinedValue)
-							.getContent();
-					parameterTypes[position] = realValue.getClass();
-					values.put(position, realValue);
-				}
-			}
-
-			update.put(methodName, parameterTypes);
-		}
-
-		for (Entry<String, Class[]> onUpdate : update.entrySet()) {
-			def.setParameterTypes(onUpdate.getKey(), onUpdate.getValue());
-		}
 	}
 
 	/**

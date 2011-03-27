@@ -11,13 +11,12 @@ import ynot.core.exception.provider.UnprovidableResourceException;
 import ynot.core.listener.provider.resource.ResourceProviderListener;
 import ynot.core.provider.resource.ResourceProvider;
 
-
 /**
  * ResourceProvider with spring logical.
+ * 
  * @author equesada
  */
-public class SpringResourceProvider implements
-    ResourceProvider<String> {
+public class SpringResourceProvider implements ResourceProvider<String> {
 
 	/**
 	 * The name of the provider.
@@ -33,10 +32,12 @@ public class SpringResourceProvider implements
 	 * The listeners of the provider.
 	 */
 	private final List<ResourceProviderListener> listeners;
-	
+
 	/**
 	 * The main constructor.
-	 * @param newProviderName the provider name.
+	 * 
+	 * @param newProviderName
+	 *            the provider name.
 	 */
 	public SpringResourceProvider(final String newProviderName) {
 		providerName = newProviderName;
@@ -46,7 +47,9 @@ public class SpringResourceProvider implements
 
 	/**
 	 * To load an context.
-	 * @param newContext the context to load
+	 * 
+	 * @param newContext
+	 *            the context to load
 	 */
 	public final void addContext(final ApplicationContext newContext) {
 		this.context.add(newContext);
@@ -54,7 +57,9 @@ public class SpringResourceProvider implements
 
 	/**
 	 * To get the bean on a context.
-	 * @param objectName the name of the bean
+	 * 
+	 * @param objectName
+	 *            the name of the bean
 	 * @return the bean
 	 */
 	private Object getBean(final String objectName) {
@@ -68,32 +73,35 @@ public class SpringResourceProvider implements
 
 	/**
 	 * To load contexts.
-	 * @param newContexts the list of contexts to load
+	 * 
+	 * @param newContexts
+	 *            the list of contexts to load
 	 */
-	public final void setContexts(
-	    final List<ApplicationContext> newContexts) {
+	public final void setContexts(final List<ApplicationContext> newContexts) {
 		for (ApplicationContext oneContext : newContexts) {
 			addContext(oneContext);
 		}
 	}
 
 	@Override
-	public final Resource get(final String resourceName) 
+	public final Resource get(final String resourceName)
 			throws UnprovidableResourceException {
-		
+
 		Object content = null;
-		
+
 		if ("shell".equals(resourceName) && "ynot".equals(getName())) {
 			content = Shell.getInstance();
-		} else {
+		}
+
+		if (content == null) {
 			content = getBean(resourceName);
 		}
-		
-		Resource res =  new Resource(providerName, resourceName, content);
+
+		Resource res = new Resource(providerName, resourceName, content);
 		if (res == null || res.getContent() == null) {
-			throw new UnprovidableResourceException(
-				"resource \"" + resourceName 
-				+ "\" for provider \"" + providerName + "\" not found");
+			throw new UnprovidableResourceException("resource \""
+					+ resourceName + "\" for provider \"" + providerName
+					+ "\" not found");
 		}
 		res = preNoticeListeners(res);
 		if (postNoticeListeners(res)) {
@@ -105,11 +113,13 @@ public class SpringResourceProvider implements
 
 	/**
 	 * To notice the listeners before.
-	 * @param res the current resource.
+	 * 
+	 * @param res
+	 *            the current resource.
 	 * @return the current resource.
 	 */
 	private Resource preNoticeListeners(final Resource res) {
-	    Resource newRes = res;
+		Resource newRes = res;
 		for (ResourceProviderListener listener : listeners) {
 			newRes = listener.preNotice(newRes);
 		}
@@ -118,7 +128,9 @@ public class SpringResourceProvider implements
 
 	/**
 	 * To notice the listeners after.
-	 * @param res the current resource.
+	 * 
+	 * @param res
+	 *            the current resource.
 	 * @return true if it needs to continue.
 	 */
 	private boolean postNoticeListeners(final Resource res) {
@@ -137,6 +149,7 @@ public class SpringResourceProvider implements
 
 	/**
 	 * Not used.
+	 * 
 	 * @return false;
 	 */
 	@Override
@@ -151,7 +164,7 @@ public class SpringResourceProvider implements
 
 	@Override
 	public final void setListeners(
-	        final List<ResourceProviderListener> newListeners) {
+			final List<ResourceProviderListener> newListeners) {
 		for (ResourceProviderListener listener : newListeners) {
 			this.listeners.add(listener);
 		}

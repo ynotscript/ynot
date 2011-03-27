@@ -50,7 +50,9 @@ public class Builder {
 
 	/**
 	 * To add a new namespace.
-	 * @param ns the namespace to add.
+	 * 
+	 * @param ns
+	 *            the namespace to add.
 	 */
 	public final void addNamespace(final String ns) {
 		loadedPackages.add(ns);
@@ -71,62 +73,73 @@ public class Builder {
 
 	/**
 	 * To get the data member of an object from his name.
-     * @param object the concerned object.
-     * @param memberName the member name.
-     * @return the value.
-	 * @throws IllegalAccessException 
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalArgumentException 
-     * @throws Exception if something is wrong.
+	 * 
+	 * @param object
+	 *            the concerned object.
+	 * @param memberName
+	 *            the member name.
+	 * @return the value.
+	 * @throws IllegalAccessException
+	 *             if there is an illegal access.
+	 * @throws NoSuchFieldException
+	 *             if the field is missing.
 	 */
-	private Object getMember(final Object object, final String memberName) throws IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+	private Object getMember(final Object object, final String memberName)
+			throws NoSuchFieldException, IllegalAccessException {
 		@SuppressWarnings("rawtypes")
 		Class clazz = object.getClass();
 		if (object instanceof ClassWrapper) {
 			clazz = ((ClassWrapper) object).getClazz();
 			return ReflectionManager.getMember(null, clazz, memberName);
 		} else {
-		    return ReflectionManager.getMember(object, clazz, memberName);
+			return ReflectionManager.getMember(object, clazz, memberName);
 		}
 	}
 
 	/**
 	 * To set the data member of an object from his name.
-     * @param object the concerned object.
-     * @param memberName the member name.
-	 * @param newValue the new value.
+	 * 
+	 * @param object
+	 *            the concerned object.
+	 * @param memberName
+	 *            the member name.
+	 * @param newValue
+	 *            the new value.
 	 * @return the new value.
-	 * @throws IllegalAccessException 
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalArgumentException 
-     * @throws Exception if something is wrong.
+	 * @throws IllegalAccessException
+	 *             if there is an illegal access.
+	 * @throws NoSuchFieldException
+	 *             if the field is missing.
 	 */
-	private Object setMember(
-	        final Object object, final String memberName, final Object newValue) throws IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+	private Object setMember(final Object object, final String memberName,
+			final Object newValue) throws NoSuchFieldException,
+			IllegalAccessException {
 		@SuppressWarnings("rawtypes")
 		Class clazz = object.getClass();
 		if (object instanceof ClassWrapper) {
 			clazz = ((ClassWrapper) object).getClazz();
-			return ReflectionManager.setMember(
-			        null, clazz, memberName, newValue);
+			return ReflectionManager.setMember(null, clazz, memberName,
+					newValue);
 		} else {
-		    return ReflectionManager.setMember(
-		            object, clazz, memberName, newValue);
+			return ReflectionManager.setMember(object, clazz, memberName,
+					newValue);
 		}
 	}
 
 	/**
 	 * To get a wrapper of a class.
-	 * @param className the full classname.
+	 * 
+	 * @param className
+	 *            the full classname.
 	 * @return the corresponding ClassWrapper.
-	 * @throws ClassNotFoundException 
-	 * @throws Exception if something is wrong.
+	 * @throws ClassNotFoundException
+	 *             if the class doesn't exist.
 	 */
-	public final ClassWrapper getClassWrapper(final String className) throws ClassNotFoundException {
+	public final ClassWrapper getClassWrapper(final String className)
+			throws ClassNotFoundException {
 		// 1 - Get Class from his name
 		@SuppressWarnings("rawtypes")
-		Class cl = ReflectionManager
-				.getClass(className, getLoadedPackages());
+		Class cl = ReflectionManager.getClass(className, getLoadedPackages());
 		return new ClassWrapper(cl);
 	}
 
@@ -140,18 +153,18 @@ public class Builder {
 	 * @param argList
 	 *            the arguments to give.
 	 * @return the return of the called method.
-	 * @throws NoSuchMethodException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
-	 * @throws NoSuchFieldException 
-	 * @throws Exception if something went bad.
+	 * @throws NoSuchMethodException
+	 * @throws InvocationTargetException if there is a problem when invocing.
+	 * @throws IllegalAccessException if there an illegal access.
+	 * @throws NoSuchMethodException if the method doesn't exist.
+	 * @throws NoSuchFieldException if the field doesn't exist.
 	 */
 	public final Object call(final Object object, final String methodName,
-			final List<Object> argList) throws NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchFieldException {
+			final List<Object> argList) throws NoSuchMethodException,
+			IllegalAccessException, InvocationTargetException,
+			NoSuchFieldException {
 		if (object == null) {
-			throw new IllegalArgumentException(
-			        "object to use to call is null ");
+			throw new IllegalArgumentException("object to use to call is null ");
 		}
 		List<Object> arguments = argList;
 		if (arguments == null) {
@@ -164,9 +177,9 @@ public class Builder {
 			clazz = ((ClassWrapper) object).getClazz();
 		}
 		try {
-		Method method = ReflectionManager.getMethod(clazz, methodName,
-				arguments.toArray(args));
-		return method.invoke(object, args);
+			Method method = ReflectionManager.getMethod(clazz, methodName,
+					arguments.toArray(args));
+			return method.invoke(object, args);
 		} catch (NoSuchMethodException e) {
 			String memberName = methodName;
 			if (arguments.isEmpty()) {
@@ -188,7 +201,8 @@ public class Builder {
 	 * @param objs
 	 *            the parameters for the constructors.
 	 * @return an instantiate of the class with the parameters.
-	 * @throws Exception if something is bad.
+	 * @throws Exception
+	 *             if something is bad.
 	 */
 	public final Object build(final String className, final Object[] objs)
 			throws Exception {
@@ -209,15 +223,15 @@ public class Builder {
 	 * @param argList
 	 *            the arguments to give to the constructor.
 	 * @return the created object.
-	 * @throws Exception if something is bad.
+	 * @throws Exception
+	 *             if something is bad.
 	 */
 	@SuppressWarnings("unchecked")
-	public final Object build(
-	        final String classname, final List<Object> argList)
-			    throws Exception {
+	public final Object build(final String classname, final List<Object> argList)
+			throws Exception {
 
 		// 0 - Initialize
-	    List<Object> arguments = argList;
+		List<Object> arguments = argList;
 		if (arguments == null) {
 			arguments = new ArrayList<Object>();
 		}
@@ -245,17 +259,21 @@ public class Builder {
 
 	/**
 	 * To get the proxy implementing the interfaces.
-	 * @param interfaceNames the interfaces list.
-	 * @param functionName the function name to call.
-	 * @param shell the concerned shell.
-	 * @param structure the concerned structure.
+	 * 
+	 * @param interfaceNames
+	 *            the interfaces list.
+	 * @param functionName
+	 *            the function name to call.
+	 * @param shell
+	 *            the concerned shell.
+	 * @param structure
+	 *            the concerned structure.
 	 * @return the proxy object.
-	 * @throws ClassNotFoundException 
-	 * @throws Exception if something is wrong.
+	 * @throws ClassNotFoundException if the class is not found.
 	 */
-	public final Object getProxy(
-	        final List<String> interfaceNames, final String functionName,
-			final Shell shell, final Structure structure) throws ClassNotFoundException {
+	public final Object getProxy(final List<String> interfaceNames,
+			final String functionName, final Shell shell,
+			final Structure structure) throws ClassNotFoundException {
 		@SuppressWarnings("rawtypes")
 		Class[] interfaces = new Class[interfaceNames.size()];
 		for (int i = 0; i < interfaceNames.size(); ++i) {

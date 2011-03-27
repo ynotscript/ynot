@@ -17,7 +17,7 @@ public class Pattern implements Cloneable {
 	 * @param newId the id to set
 	 */
 	public final void setId(final String newId) {
-		this.id = newId;
+		this.id = newId.trim();
 	}
 
 	/**
@@ -31,7 +31,7 @@ public class Pattern implements Cloneable {
 	 * @param newContent the content to set
 	 */
 	public final void setContent(final String newContent) {
-		this.content = newContent;
+		this.content = newContent.trim();
 	}
 
 	/**
@@ -51,8 +51,8 @@ public class Pattern implements Cloneable {
 	 */
 	public Pattern(final String newId, final String newContent) {
 		super();
-		this.id = newId;
-		this.content = newContent;
+		setId(newId);
+		setContent(newContent);
 	}
 
 	@Override

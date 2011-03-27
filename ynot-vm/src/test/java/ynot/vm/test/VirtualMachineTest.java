@@ -35,19 +35,27 @@ public class VirtualMachineTest {
 					"test");
 			String reqs = "import(\"ynot.impl.provider.request\")\n"
 					+ "import(\"ynot.vm\")\n"
-					+ "$vm := new(\"VirtualMachine\")\n"
+					+ "$vm := new VirtualMachine\n"
 					+ "$provider := new(\"InputStreamRequestProvider\", {\"console\"})\n"
-					+ "$req := null\n" + "while([\"bye\" != $req])\n"
-					+ "write ynot>\n"
-					+ "$req := readLine\n"
-					+ "$reqBytes := $req.getBytes(\"UTF-8\")\n"
-					+ "$bais := new(\"ByteArrayInputStream\",{$reqBytes})\n"
-					+ "$provider.setInputStream($bais)\n"
+					+ "$in := new PipedInputStream\n"
+					+ "$out := new(\"PipedOutputStream\", {$in})\n"
+					+ "$provider.setInputStream($in)\n"
 					+ "$context := $vm.getContext($provider)\n"
 					+ "$reqParser := $context.getBean(\"requestParser\")\n"
 					+ "$provider.setParser($reqParser)\n"
 					+ "$shell := $context.getBean(\"shell\")\n"
-					+ "$shell.run()\n" + "end";
+					+ "$shell.setLazyLoading(true)\n"
+	
+					+ "$req := null\n" 
+					+ "while([\"bye\" != $req])\n"
+						+ "write ynot>\n"
+						+ "$req := readLine\n"
+						+ "$reqBytes := $req.getBytes(\"UTF-8\")\n"
+						+ "$out.write($reqBytes)\n"
+						+ "$out.flush()\n"
+						+ "$shell.runStep()\n" 
+						+ "$shell.nextStep()\n" 
+					+ "end";
 			reqProvider.setInputStream(new ByteArrayInputStream(reqs
 					.getBytes("UTF-8")));
 			ApplicationContext context = vm.getContext(reqProvider);
