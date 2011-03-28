@@ -1,0 +1,25 @@
+import("ynot.impl.provider.request")
+import("ynot.vm")
+
+$vm := new VirtualMachine
+$provider := new("InputStreamRequestProvider", {"console"})
+$in := new PipedInputStream
+$out := new("PipedOutputStream", {$in})
+$provider.setInputStream($in)
+$context := $vm.getContext($provider)
+$reqParser := $context.getBean("requestParser")
+$provider.setParser($reqParser)
+$shell := $context.getBean("shell")
+$shell.setLazyLoading(true)
+$req := null 
+while(["bye" != $req])
+	write ynot>
+	$req := readLine
+	$reqBytes := $req.getBytes("UTF-8")
+	$out.write($reqBytes)
+	$out.flush()
+	while([$shell.hasStep()])
+		$shell.runStep() 
+		$shell.nextStep()
+	end
+end
