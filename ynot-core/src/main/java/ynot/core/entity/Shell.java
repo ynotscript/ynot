@@ -84,6 +84,9 @@ public class Shell implements Cloneable {
 	 */
 	public final boolean hasStep() throws UnprovidableCommandException {
 		if (lazyLoading) {
+			if (((getStep() - 1) < commands.size())) {
+				return true;
+			}
 			return commandProvider.hasNext();
 		} else {
 			return ((getStep() - 1) < commands.size());
@@ -141,11 +144,11 @@ public class Shell implements Cloneable {
 	 */
 	private List<Command> getCurrentCommandList()
 			throws UnprovidableCommandException {
-		if (lazyLoading) {
-			return commandProvider.getNext();
-		} else {
-			return commands.get(progress.getStep());
+		if (lazyLoading && commands.get(progress.getStep()) == null) {
+			List<Command> cmds = commandProvider.getNext();
+			commands.put(progress.getStep(), cmds);
 		}
+		return commands.get(progress.getStep());
 	}
 
 	/**

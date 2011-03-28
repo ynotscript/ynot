@@ -54,9 +54,11 @@ public class VirtualMachineTest {
 						+ "$reqBytes := $req.getBytes(\"UTF-8\")\n"
 						+ "$out.write($reqBytes)\n"
 						+ "$out.flush()\n"
-						+ "$shell.runStep()\n" 
-						+ "$shell.nextStep()\n" 
-					+ "end";
+						+ "while([$shell.hasStep()])\n"
+						    + "$shell.runStep()\n" 
+						    + "$shell.nextStep()\n" 
+						+ "end\n"
+					+ "end\n";
 			reqProvider.setInputStream(new ByteArrayInputStream(reqs
 					.getBytes("UTF-8")));
 			ApplicationContext context = vm.getContext(reqProvider);

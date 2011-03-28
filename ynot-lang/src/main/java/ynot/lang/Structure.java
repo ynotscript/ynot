@@ -129,9 +129,9 @@ public class Structure {
 	public final void whileMethod(final Shell shell, final Boolean condition) {
 		String key = "label:" + shell.getCurrent();
 		if (condition) {
-			Shell.set(key, shell.getStep());
+			shell.setVariable(key, shell.getStep());
 		} else {
-			Shell.unset(key);
+			shell.unsetVariable(key);
 			shell.lock();
 		}
 	}
@@ -144,7 +144,8 @@ public class Structure {
 	 */
 	public final void endwhileMethod(final Shell shell) {
 		shell.goIn("whileMethod");
-		Integer line = (Integer) Shell.get("label:" + shell.getCurrent());
+		Integer line = (Integer) shell.getVariable("label:"
+				+ shell.getCurrent());
 		if (line != null) {
 			shell.setNextStep(line);
 		}
@@ -172,11 +173,11 @@ public class Structure {
 		}
 		if (list != null && indice < list.size()) {
 			shell.setVariable(varName, list.get(indice));
-			Shell.set("label:" + key, shell.getStep());
+			shell.setVariable("label:" + key, shell.getStep());
 			shell.setVariable(keyIndice, indice + 1);
 		} else {
 			shell.lock();
-			Shell.unset("label:" + key);
+			shell.unsetVariable("label:" + key);
 			shell.unsetVariable(varName);
 			shell.unsetVariable(keyIndice);
 		}
@@ -190,7 +191,8 @@ public class Structure {
 	 */
 	public final void endforMethod(final Shell shell) {
 		shell.goIn("forMethod");
-		Integer line = (Integer) Shell.get("label:" + shell.getCurrent());
+		Integer line = (Integer) shell.getVariable("label:"
+				+ shell.getCurrent());
 		if (line != null) {
 			shell.setNextStep(line);
 		}
@@ -213,7 +215,7 @@ public class Structure {
 					toAddAfter.push(shell.goOut());
 					--deepToRemove;
 				}
-				Shell.unset("label:" + shell.getCurrent());
+				shell.unsetVariable("label:" + shell.getCurrent());
 				break;
 			}
 			deepToRemove++;
@@ -260,7 +262,8 @@ public class Structure {
 			final String methodName, final List<Object> argumentNames) {
 
 		// set the label for the function
-		Shell.set("label:function_" + methodName + "_" + argumentNames.size(),
+		shell.setVariable(
+				"label:function_" + methodName + "_" + argumentNames.size(),
 				shell.getStep());
 
 		// set the names of the arguments for the function
@@ -292,7 +295,7 @@ public class Structure {
 		if (null == shell.getVariable("comeFromEnd")) {
 
 			// get the label of the asked function
-			Integer goToStep = (Integer) Shell.get("label:function_"
+			Integer goToStep = (Integer) shell.getVariable("label:function_"
 					+ methodName + "_" + arguments.size());
 
 			// if function not exist so throw error
