@@ -110,7 +110,7 @@ public class FunctionInvocationHandler implements InvocationHandler, Cloneable {
             }
             structure.callMethod(shell, functionName, arguments);
         } catch (Exception e) {
-            logger.error(e);
+            e.printStackTrace();
         }
     }
 

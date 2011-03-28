@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -85,7 +86,7 @@ public class Shell implements Cloneable {
 		if (lazyLoading) {
 			return commandProvider.hasNext();
 		} else {
-			return (getStep() <= commands.size());
+			return ((getStep() - 1) < commands.size());
 		}
 	}
 
@@ -115,35 +116,20 @@ public class Shell implements Cloneable {
 	public final void runStep() throws UnprovidableResourceException,
 			CloneNotSupportedException, IllegalAccessException,
 			InvocationTargetException, UnprovidableCommandException {
-
-		List<Command> cmds = getCurrentCommandList();
-		while (hasCommandToExecute(cmds)) {
-			Command currentCommand = cmds.get(progress.getSubStep() - 1);
+		List<Command> cmdsOfTheStep = getCurrentCommandList();
+		while ((progress.getSubStep() - 1) < cmdsOfTheStep.size()) {
+			Command currentCommand = cmdsOfTheStep
+					.get(progress.getSubStep() - 1);
 			if (hasToBeInvoked(currentCommand)) {
 				Command cleanedCommand = cleanCommand(currentCommand);
 				Object result = cleanedCommand.invoke();
 				assignVariables(cleanedCommand, result);
-				if (!nextCommandIsAlwaysInThisStep()) {
+				if (progress.hasJumped()) {
 					break;
 				}
 			}
-			moveToNextCommand();
+			progress.goNextSubStep();
 		}
-	}
-
-	/**
-	 * Check if there is at least a command to execute.
-	 * 
-	 * @param cmds
-	 *            the current commands.
-	 * 
-	 * @return true if it's the case.
-	 * @throws UnprovidableCommandException
-	 *             if a command is not providable.
-	 */
-	private boolean hasCommandToExecute(final List<Command> cmds)
-			throws UnprovidableCommandException {
-		return progress.getSubStep() <= cmds.size();
 	}
 
 	/**
@@ -262,22 +248,6 @@ public class Shell implements Cloneable {
 	}
 
 	/**
-	 * To know if the next command has changed.
-	 * 
-	 * @return true if it's the case.
-	 */
-	private boolean nextCommandIsAlwaysInThisStep() {
-		return !progress.hasJumped();
-	}
-
-	/**
-	 * To go to the next command (= next subStep).
-	 */
-	private void moveToNextCommand() {
-		progress.goNextSubStep();
-	}
-
-	/**
 	 * To go to the next step.
 	 */
 	public final void nextStep() {
@@ -356,7 +326,30 @@ public class Shell implements Cloneable {
 		clonedShell.progress = (Progress) progress.clone();
 		clonedShell.lock = (Lock) lock.clone();
 		clonedShell.variableManager = (VariableManager) variableManager.clone();
-		clonedShell.commands = new TreeMap<Integer, List<Command>>(commands);
+		clonedShell.commands = new TreeMap<Integer, List<Command>>();
+		for (Entry<Integer, List<Command>> entry : commands.entrySet()) {
+			Integer step = entry.getKey();
+			List<Command> cmdsOfTheStep = entry.getValue();
+			List<Command> newCmds = new ArrayList<Command>();
+			for (Command oneCmd : cmdsOfTheStep) {
+				Command newCmd = (Command) oneCmd.clone();
+				if (newCmd.getResourceToUse() == this) {
+					newCmd.setResourceToUse(clonedShell);
+				}
+				Object[] args = newCmd.getArgumentsToGive();
+				Object[] newArgs = new Object[args.length];
+				for (int i = 0; i < args.length; i++) {
+					if (args[i] == this) {
+						newArgs[i] = clonedShell;
+					} else {
+						newArgs[i] = args[i];
+					}
+				}
+				newCmd.setArgumentsToGive(newArgs);
+				newCmds.add(newCmd);
+			}
+			clonedShell.commands.put(step, newCmds);
+		}
 		return clonedShell;
 	}
 

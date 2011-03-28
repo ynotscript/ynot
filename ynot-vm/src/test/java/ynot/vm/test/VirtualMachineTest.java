@@ -2,6 +2,7 @@ package ynot.vm.test;
 
 import java.io.ByteArrayInputStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 
@@ -17,7 +18,7 @@ import ynot.vm.VirtualMachine.ContextKey;
  * 
  * @author equesada
  */
-// @Ignore
+@Ignore
 public class VirtualMachineTest {
 
 	/**
