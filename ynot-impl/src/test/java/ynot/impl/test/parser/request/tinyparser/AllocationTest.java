@@ -52,5 +52,19 @@ public class AllocationTest {
 		assertEquals(reqs2.get(0).getGivenParameters().length, 1);
 		assertEquals((reqs2.get(0).getGivenParameters()[0]), null);
 		assertEquals((reqs2.get(0).getVariableNames()[0]), "req");
+		List<Request> reqs3 = allocation.parse("$a:=\"hello\"");
+		assertTrue(reqs3.size() == 1);
+		assertEquals(reqs3.get(0).getWordToUse(), "assign");
+		assertEquals(reqs3.get(0).getDefinitionProviderName(), "ynot");
+		assertEquals(reqs3.get(0).getGivenParameters().length, 1);
+		assertEquals((reqs3.get(0).getGivenParameters()[0]), "hello");
+		assertEquals((reqs3.get(0).getVariableNames()[0]), "a");
+		List<Request> reqs4 = allocation.parse("$req:=null");
+		assertTrue(reqs4.size() == 1);
+		assertEquals(reqs4.get(0).getWordToUse(), "assign");
+		assertEquals(reqs4.get(0).getDefinitionProviderName(), "ynot");
+		assertEquals(reqs4.get(0).getGivenParameters().length, 1);
+		assertEquals((reqs4.get(0).getGivenParameters()[0]), null);
+		assertEquals((reqs4.get(0).getVariableNames()[0]), "req");
 	}
 }

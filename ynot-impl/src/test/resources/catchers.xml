@@ -184,8 +184,8 @@
 	<catcher>
 		<id>InvokeMemberFunction</id>
 		<matches>
-			<match>##varname##.##methodname##</match>
-			<match>##varname##.##methodname####emptyParametersBlock##</match>
+			<match>##varname##\.##methodname##</match>
+			<match>##varname##\.##methodname####emptyParametersBlock##</match>
 		</matches>
 		<unmatches>
 		</unmatches>
@@ -196,7 +196,7 @@
 	<catcher>
 		<id>InvokeMemberFunctionWithParameters</id>
 		<matches>
-			<match>##varname##.##methodname####parametersBlock##
+			<match>##varname##\.##methodname####parametersBlock##
 			</match>
 		</matches>
 		<unmatches>
@@ -209,10 +209,10 @@
 		<id>InvokeMemberFunctionWithVariables</id>
 		<matches>
 			<match>
-				##varnames####assignment####varname##.##methodname##
+				##varnames####assignment####varname##\.##methodname##
 			</match>
 			<match>
-				##varnames####assignment####varname##.##methodname####emptyParametersBlock##
+				##varnames####assignment####varname##\.##methodname####emptyParametersBlock##
 			</match>
 		</matches>
 		<unmatches>
@@ -225,7 +225,7 @@
 		<id>InvokeMemberFunctionWithVariablesAndParameters</id>
 		<matches>
 			<match>
-				##varnames####assignment####varname##.##methodname####parametersBlock##
+				##varnames####assignment####varname##\.##methodname####parametersBlock##
 			</match>
 		</matches>
 		<unmatches>

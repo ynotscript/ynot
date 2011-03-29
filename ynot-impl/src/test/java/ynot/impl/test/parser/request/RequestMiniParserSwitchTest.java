@@ -3,7 +3,6 @@ package ynot.impl.test.parser.request;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URL;
 import java.util.List;
 
 import org.junit.Before;
@@ -37,29 +36,6 @@ public class RequestMiniParserSwitchTest {
 	}
 
 	/**
-	 * To get the base path of the project.
-	 * 
-	 * @return the base path.
-	 */
-	public static String getBasePath() {
-		String base = "./";
-		URL path = RequestMiniParserSwitchTest.class.getProtectionDomain()
-				.getCodeSource().getLocation();
-		if (path.toString().endsWith(".jar")) {
-			base = path.toString().replace("file:/", "");
-			base = base.substring(0, base.lastIndexOf("/") + 1);
-			if (!base.matches("^[a-zA-Z]:.*$")) {
-				base = "/" + base;
-			} else {
-				base = base.replaceAll("/", "\\\\");
-				base = base.replaceAll("%20", " ");
-			}
-
-		}
-		return base;
-	}
-
-	/**
 	 * To test the parse method.
 	 * 
 	 * @throws UnparsableRequestException
@@ -82,5 +58,13 @@ public class RequestMiniParserSwitchTest {
 		assertEquals(reqs2.get(0).getGivenParameters().length, 1);
 		assertEquals((reqs2.get(0).getGivenParameters()[0]), null);
 		assertEquals((reqs2.get(0).getVariableNames()[0]), "req");
+		
+		List<Request> reqs3 = miniRequestParserSwitcher.parse("$req:=null");
+		assertTrue(reqs3.size() == 1);
+		assertEquals(reqs3.get(0).getWordToUse(), "assign");
+		assertEquals(reqs3.get(0).getDefinitionProviderName(), "ynot");
+		assertEquals(reqs3.get(0).getGivenParameters().length, 1);
+		assertEquals((reqs3.get(0).getGivenParameters()[0]), null);
+		assertEquals((reqs3.get(0).getVariableNames()[0]), "req");
 	}
 }

@@ -261,6 +261,9 @@ public class Structure {
 	public final void functionMethod(final Shell shell,
 			final String methodName, final List<Object> argumentNames) {
 
+		// go out of the namespace
+		String previous = shell.goOut();
+		
 		// set the label for the function
 		shell.setVariable(
 				"label:function_" + methodName + "_" + argumentNames.size(),
@@ -270,6 +273,9 @@ public class Structure {
 		shell.setVariable("function_" + methodName + "_" + argumentNames.size()
 				+ "_args", argumentNames);
 
+		// re-enter in namespace
+		shell.goIn(previous);
+		
 		// lock to not execute until the end of the function
 		shell.lock();
 
