@@ -87,6 +87,10 @@
 						<directory>src/main/resources/examples</directory>
 					</fileSet>
 					<fileSet>
+						<outputDirectory>ynot/tools</outputDirectory>
+						<directory>src/main/resources/tools</directory>
+					</fileSet>
+					<fileSet>
 						<outputDirectory>ynot/res</outputDirectory>
 						<directory>src/main/resources/res</directory>
 					</fileSet>
