@@ -103,6 +103,21 @@ public class Shell implements Cloneable {
 	}
 
 	/**
+	 * Try to run the current step.
+	 * 
+	 * @return true if succeed to run else false.
+	 */
+	public final boolean tryToRunStep() {
+		try {
+			runStep();
+			return true;
+		} catch (Exception e) {
+			logger.error("This command is not correct", e);
+			return false;
+		}
+	}
+
+	/**
 	 * Run the current step.
 	 * 
 	 * @throws CloneNotSupportedException

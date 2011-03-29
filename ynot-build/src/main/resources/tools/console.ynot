@@ -11,15 +11,24 @@ $reqParser := $context.getBean("requestParser")
 $provider.setParser($reqParser)
 $shell := $context.getBean("shell")
 $shell.setLazyLoading(true)
-$req := null 
+$req := null
+$listReqs := new("ArrayList") 
 while(["bye" != $req])
 	write ynot>
 	$req := readLine
+	if(["flush" = $req])
+		for($listReq, "oneReq")
+			echo ${oneReq}
+		end
+		continue
+	end
 	$reqBytes := $req.getBytes("UTF-8")
 	$out.write($reqBytes)
 	$out.flush()
 	while([$shell.hasStep()])
-		$shell.runStep() 
+		if([$shell.tryToRunStep()])
+			$listReqs.add($req)
+		end 
 		$shell.nextStep()
 	end
 end
