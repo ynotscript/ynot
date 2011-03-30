@@ -11,7 +11,7 @@
 
 	<bean id="structure" class="ynot.lang.Structure" />
 	
-	<bean id="fileSystemManager" class="ynot.util.io.FileSystemManager" />
+	<bean id="fileManager" class="ynot.util.io.FileSystemManager" />
 
 	<bean id="builder" class="ynot.lang.Builder">
 		<property name="loadedPackages">
