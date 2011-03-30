@@ -17,463 +17,489 @@ import ynot.util.variable.VariableManager.Scope;
  */
 public class Structure {
 
-	// Member(s)
+    // Member(s)
 
-	/**
-	 * The logger.
-	 */
-	private static Logger logger = Logger.getLogger(Structure.class);
+    /**
+     * The logger.
+     */
+    private static Logger logger = Logger.getLogger(Structure.class);
 
-	// Constructor(s)
+    // Constructor(s)
 
-	/**
-	 * The default constructor (java bean specification).
-	 */
-	public Structure() {
-	}
+    /**
+     * The default constructor (java bean specification).
+     */
+    public Structure() {
+    }
 
-	// Getter(s)/Setter(s)
+    // Getter(s)/Setter(s)
 
-	/**
-	 * To get an object able to log everywhere.
-	 * 
-	 * @return a logger object
-	 */
-	public final Logger getLogger() {
-		return logger;
-	}
+    /**
+     * To get an object able to log everywhere.
+     * 
+     * @return a logger object
+     */
+    public final Logger getLogger() {
+        return logger;
+    }
 
-	// Other functions
+    // Other functions
 
-	/**
-	 * The if logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param condition
-	 *            if true we will enter in the next block.
-	 */
-	public final void ifMethod(final Shell shell, final Boolean condition) {
-		Scope currentScope = shell.getVariablesScope();
-		shell.setVariablesScope(Scope.LOCAL);
-		if (condition) {
-			String block = shell.goOut();
-			shell.setVariable("enter_ifMethod", "true");
-			shell.goIn(block);
-		} else {
-			shell.lock();
-		}
-		shell.setVariablesScope(currentScope);
-	}
+    /**
+     * The if logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param condition
+     *            if true we will enter in the next block.
+     */
+    public final void ifMethod(final Shell shell, final Boolean condition) {
+        Scope currentScope = shell.getVariablesScope();
+        shell.setVariablesScope(Scope.LOCAL);
+        if (condition) {
+            String block = shell.goOut();
+            shell.setVariable("enter_ifMethod", "true");
+            shell.goIn(block);
+        } else {
+            shell.lock();
+        }
+        shell.setVariablesScope(currentScope);
+    }
 
-	/**
-	 * The elseif logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param condition
-	 *            if true we will enter in the next block.
-	 */
-	public final void elseifMethod(final Shell shell, final Boolean condition) {
-		Scope currentScope = shell.getVariablesScope();
-		shell.setVariablesScope(Scope.LOCAL);
-		String block = shell.goOut();
-		if (condition && shell.getVariable("enter_ifMethod") == null) {
-			shell.setVariable("enter_ifMethod", "true");
-			shell.goIn(block);
-		} else {
-			shell.goIn(block);
-			shell.lock();
-		}
-		shell.setVariablesScope(currentScope);
-	}
+    /**
+     * The elseif logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param condition
+     *            if true we will enter in the next block.
+     */
+    public final void elseifMethod(final Shell shell, final Boolean condition) {
+        Scope currentScope = shell.getVariablesScope();
+        shell.setVariablesScope(Scope.LOCAL);
+        String block = shell.goOut();
+        if (condition && shell.getVariable("enter_ifMethod") == null) {
+            shell.setVariable("enter_ifMethod", "true");
+            shell.goIn(block);
+        } else {
+            shell.goIn(block);
+            shell.lock();
+        }
+        shell.setVariablesScope(currentScope);
+    }
 
-	/**
-	 * The else logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	public final void elseMethod(final Shell shell) {
-		Scope currentScope = shell.getVariablesScope();
-		shell.setVariablesScope(Scope.LOCAL);
-		String block = shell.goOut();
-		if (shell.getVariable("enter_ifMethod") == null) {
-			shell.setVariable("enter_ifMethod", "true");
-			shell.goIn(block);
-		} else {
-			shell.goIn(block);
-			shell.lock();
-		}
-		shell.setVariablesScope(currentScope);
-	}
+    /**
+     * The else logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void elseMethod(final Shell shell) {
+        Scope currentScope = shell.getVariablesScope();
+        shell.setVariablesScope(Scope.LOCAL);
+        String block = shell.goOut();
+        if (shell.getVariable("enter_ifMethod") == null) {
+            shell.setVariable("enter_ifMethod", "true");
+            shell.goIn(block);
+        } else {
+            shell.goIn(block);
+            shell.lock();
+        }
+        shell.setVariablesScope(currentScope);
+    }
 
-	/**
-	 * The endif logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	public final void endifMethod(final Shell shell) {
-		shell.unsetVariable("enter_ifMethod");
-	}
+    /**
+     * The endif logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void endifMethod(final Shell shell) {
+        shell.unsetVariable("enter_ifMethod");
+    }
 
-	/**
-	 * The while logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param condition
-	 *            if true we will repeat in the next block.
-	 */
-	public final void whileMethod(final Shell shell, final Boolean condition) {
-		String key = "label:" + shell.getCurrent();
-		if (condition) {
-			shell.setVariable(key, shell.getStep());
-		} else {
-			shell.unsetVariable(key);
-			shell.lock();
-		}
-	}
+    /**
+     * The while logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param condition
+     *            if true we will repeat in the next block.
+     */
+    public final void whileMethod(final Shell shell, final Boolean condition) {
+        String key = "label:" + shell.getCurrent();
+        if (condition) {
+            shell.setVariable(key, shell.getStep());
+        } else {
+            shell.unsetVariable(key);
+            shell.lock();
+        }
+    }
 
-	/**
-	 * The endwhile logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	public final void endwhileMethod(final Shell shell) {
-		shell.goIn("whileMethod");
-		Integer line = (Integer) shell.getVariable("label:"
-				+ shell.getCurrent());
-		if (line != null) {
-			shell.setNextStep(line);
-		}
-		shell.goOut();
-	}
+    /**
+     * The endwhile logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void endwhileMethod(final Shell shell) {
+        shell.goIn("whileMethod");
+        Integer line = (Integer) shell.getVariable("label:"
+                + shell.getCurrent());
+        if (line != null) {
+            shell.setNextStep(line);
+        }
+        shell.goOut();
+    }
 
-	/**
-	 * The while logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param list
-	 *            the list to iterate.
-	 * @param varName
-	 *            the name of the variable use for the next element.
-	 */
-	@SuppressWarnings("rawtypes")
-	public final void forMethod(final Shell shell, final List list,
-			final String varName) {
-		String key = shell.getCurrent();
-		String keyIndice = shell.getCurrent() + "_indice";
-		int indice = 0;
-		if (shell.getVariable(keyIndice) != null) {
-			indice = (Integer) shell.getVariable(keyIndice);
-		}
-		if (list != null && indice < list.size()) {
-			shell.setVariable(varName, list.get(indice));
-			shell.setVariable("label:" + key, shell.getStep());
-			shell.setVariable(keyIndice, indice + 1);
-		} else {
-			shell.lock();
-			shell.unsetVariable("label:" + key);
-			shell.unsetVariable(varName);
-			shell.unsetVariable(keyIndice);
-		}
-	}
+    /**
+     * The while logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param list
+     *            the list to iterate.
+     * @param varName
+     *            the name of the variable use for the next element.
+     */
+    @SuppressWarnings("rawtypes")
+    public final void forMethod(final Shell shell, final List list,
+            final String varName) {
+        String key = shell.getCurrent();
+        String keyIndice = shell.getCurrent() + "_indice";
+        int indice = 0;
+        if (shell.getVariable(keyIndice) != null) {
+            indice = (Integer) shell.getVariable(keyIndice);
+        }
+        if (list != null && indice < list.size()) {
+            shell.setVariable(varName, list.get(indice));
+            shell.setVariable("label:" + key, shell.getStep());
+            shell.setVariable(keyIndice, indice + 1);
+        } else {
+            shell.lock();
+            shell.unsetVariable("label:" + key);
+            shell.unsetVariable(varName);
+            shell.unsetVariable(keyIndice);
+        }
+    }
 
-	/**
-	 * The endwhile logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	public final void endforMethod(final Shell shell) {
-		shell.goIn("forMethod");
-		Integer line = (Integer) shell.getVariable("label:"
-				+ shell.getCurrent());
-		if (line != null) {
-			shell.setNextStep(line);
-		}
-		shell.goOut();
-	}
+    /**
+     * The endwhile logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void endforMethod(final Shell shell) {
+        shell.goIn("forMethod");
+        Integer line = (Integer) shell.getVariable("label:"
+                + shell.getCurrent());
+        if (line != null) {
+            shell.setNextStep(line);
+        }
+        shell.goOut();
+    }
 
-	/**
-	 * The break logic.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	public final void breakMethod(final Shell shell) {
-		int deepToRemove = 0;
-		Stack<String> toAddAfter = new Stack<String>();
-		Breadcrum breadcrum = new Breadcrum(shell.getCurrent());
-		for (String oneElem : breadcrum.reverse()) {
-			if ("forMethod".equals(oneElem) || "whileMethod".equals(oneElem)) {
-				while (deepToRemove > 0) {
-					toAddAfter.push(shell.goOut());
-					--deepToRemove;
-				}
-				shell.unsetVariable("label:" + shell.getCurrent());
-				break;
-			}
-			deepToRemove++;
-		}
-		shell.lock();
-		while (!toAddAfter.isEmpty()) {
-			shell.goIn(toAddAfter.pop());
-		}
-	}
+    /**
+     * The break logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void breakMethod(final Shell shell) {
+        int deepToRemove = 0;
+        Stack<String> toAddAfter = new Stack<String>();
+        Breadcrum breadcrum = new Breadcrum(shell.getCurrent());
+        for (String oneElem : breadcrum.reverse()) {
+            if ("forMethod".equals(oneElem) || "whileMethod".equals(oneElem)) {
+                while (deepToRemove > 0) {
+                    toAddAfter.push(shell.goOut());
+                    --deepToRemove;
+                }
+                shell.unsetVariable("label:" + shell.getCurrent());
+                break;
+            }
+            deepToRemove++;
+        }
+        shell.lock();
+        while (!toAddAfter.isEmpty()) {
+            shell.goIn(toAddAfter.pop());
+        }
+    }
 
-	/**
-	 * The end of the function/if/while/for.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	public final void endMethod(final Shell shell) {
+    /**
+     * The continue logic.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void continueMethod(final Shell shell) {
+        int deepToRemove = 0;
+        Stack<String> toAddAfter = new Stack<String>();
+        Breadcrum breadcrum = new Breadcrum(shell.getCurrent());
+        for (String oneElem : breadcrum.reverse()) {
+            if ("forMethod".equals(oneElem) || "whileMethod".equals(oneElem)) {
+                while (deepToRemove > 0) {
+                    toAddAfter.push(shell.goOut());
+                    --deepToRemove;
+                }
+                break;
+            }
+            deepToRemove++;
+        }
+        shell.lock();
+        while (!toAddAfter.isEmpty()) {
+            shell.goIn(toAddAfter.pop());
+        }
+    }
 
-		String previous = shell.previous();
-		if ("forMethod".equals(previous)) {
-			endforMethod(shell);
-		} else if ("whileMethod".equals(previous)) {
-			endwhileMethod(shell);
-		} else if ("functionMethod".equals(previous)) {
-			endfunctionMethod(shell);
-		} else if ("ifMethod".equals(previous) || "elseMethod".equals(previous)
-				|| "elseifMethod".equals(previous)) {
-			endifMethod(shell);
-		}
+    /**
+     * The end of the function/if/while/for.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    public final void endMethod(final Shell shell) {
 
-	}
+        String previous = shell.previous();
+        if ("forMethod".equals(previous)) {
+            endforMethod(shell);
+        } else if ("whileMethod".equals(previous)) {
+            endwhileMethod(shell);
+        } else if ("functionMethod".equals(previous)) {
+            endfunctionMethod(shell);
+        } else if ("ifMethod".equals(previous) || "elseMethod".equals(previous)
+                || "elseifMethod".equals(previous)) {
+            endifMethod(shell);
+        }
 
-	/**
-	 * The function declaration logical.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param methodName
-	 *            the method name.
-	 * @param argumentNames
-	 *            the name of the arguments to give to the method.
-	 */
-	public final void functionMethod(final Shell shell,
-			final String methodName, final List<Object> argumentNames) {
+    }
 
-		// go out of the namespace
-		String previous = shell.goOut();
-		
-		// set the label for the function
-		shell.setVariable(
-				"label:function_" + methodName + "_" + argumentNames.size(),
-				shell.getStep());
+    /**
+     * The function declaration logical.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param methodName
+     *            the method name.
+     * @param argumentNames
+     *            the name of the arguments to give to the method.
+     */
+    public final void functionMethod(final Shell shell,
+            final String methodName, final List<Object> argumentNames) {
 
-		// set the names of the arguments for the function
-		shell.setVariable("function_" + methodName + "_" + argumentNames.size()
-				+ "_args", argumentNames);
+        // go out of the namespace
+        String previous = shell.goOut();
 
-		// re-enter in namespace
-		shell.goIn(previous);
-		
-		// lock to not execute until the end of the function
-		shell.lock();
+        // set the label for the function
+        shell.setVariable(
+                "label:function_" + methodName + "_" + argumentNames.size(),
+                shell.getStep());
 
-	}
+        // set the names of the arguments for the function
+        shell.setVariable("function_" + methodName + "_" + argumentNames.size()
+                + "_args", argumentNames);
 
-	/**
-	 * To call a function.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param methodName
-	 *            the method name.
-	 * @param arguments
-	 *            the arguments to give to the method.
-	 * @return the returned object else null;
-	 * @throws Exception
-	 *             if the function doesn't exists.
-	 */
-	@SuppressWarnings("unchecked")
-	public final Object callMethod(final Shell shell, final String methodName,
-			final List<Object> arguments) throws Exception {
+        // re-enter in namespace
+        shell.goIn(previous);
 
-		if (null == shell.getVariable("comeFromEnd")) {
+        // lock to not execute until the end of the function
+        shell.lock();
 
-			// get the label of the asked function
-			Integer goToStep = (Integer) shell.getVariable("label:function_"
-					+ methodName + "_" + arguments.size());
+    }
 
-			// if function not exist so throw error
-			if (goToStep == null) {
-				throw new Exception("function \"" + methodName + "\" with "
-						+ arguments.size() + " parameters doesn't exist.");
-			}
+    /**
+     * To call a function.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param methodName
+     *            the method name.
+     * @param arguments
+     *            the arguments to give to the method.
+     * @return the returned object else null;
+     * @throws Exception
+     *             if the function doesn't exists.
+     */
+    @SuppressWarnings("unchecked")
+    public final Object callMethod(final Shell shell, final String methodName,
+            final List<Object> arguments) throws Exception {
 
-			// update the current list of function with current function name
-			List<String> functionMethodList = (List<String>) shell
-					.getVariable("functionMethodList");
-			if (functionMethodList == null) {
-				functionMethodList = new ArrayList<String>();
-			}
-			functionMethodList.add(methodName + "_" + arguments.size());
-			shell.setVariable("functionMethodList", functionMethodList);
+        if (null == shell.getVariable("comeFromEnd")) {
 
-			// create the return object but to null
-			List<Object> returnObjectList = (List<Object>) shell
-					.getVariable("returnObjectList");
-			if (returnObjectList == null) {
-				returnObjectList = new ArrayList<Object>();
-			}
-			returnObjectList.add("##NULL##");
-			shell.setVariable("returnObjectList", returnObjectList);
+            // get the label of the asked function
+            Integer goToStep = (Integer) shell.getVariable("label:function_"
+                    + methodName + "_" + arguments.size());
 
-			// set marker to be able to come back on current position (step &
-			// subStep)
-			List<Integer> returnStepList = (List<Integer>) shell
-					.getVariable("function_" + methodName + "_"
-							+ arguments.size() + "_returnStep");
-			if (returnStepList == null) {
-				returnStepList = new ArrayList<Integer>();
-			}
-			returnStepList.add(shell.getStep());
-			shell.setVariable("function_" + methodName + "_" + arguments.size()
-					+ "_returnStep", returnStepList);
+            // if function not exist so throw error
+            if (goToStep == null) {
+                throw new Exception("function \"" + methodName + "\" with "
+                        + arguments.size() + " parameters doesn't exist.");
+            }
 
-			List<Integer> returnSubStepList = (List<Integer>) shell
-					.getVariable("function_" + methodName + "_"
-							+ arguments.size() + "_returnSubStep");
-			if (returnSubStepList == null) {
-				returnSubStepList = new ArrayList<Integer>();
-			}
-			returnSubStepList.add(shell.getSubStep());
-			shell.setVariable("function_" + methodName + "_" + arguments.size()
-					+ "_returnSubStep", returnSubStepList);
+            // update the current list of function with current function name
+            List<String> functionMethodList = (List<String>) shell
+                    .getVariable("functionMethodList");
+            if (functionMethodList == null) {
+                functionMethodList = new ArrayList<String>();
+            }
+            functionMethodList.add(methodName + "_" + arguments.size());
+            shell.setVariable("functionMethodList", functionMethodList);
 
-			// enter in namespace and set shareNameSpace to false.
-			shell.goIn("functionMethod");
+            // create the return object but to null
+            List<Object> returnObjectList = (List<Object>) shell
+                    .getVariable("returnObjectList");
+            if (returnObjectList == null) {
+                returnObjectList = new ArrayList<Object>();
+            }
+            returnObjectList.add("##NULL##");
+            shell.setVariable("returnObjectList", returnObjectList);
 
-			// read variable names
-			List<Object> varNames = (List<Object>) shell
-					.getVariable("function_" + methodName + "_"
-							+ arguments.size() + "_args");
+            // set marker to be able to come back on current position (step &
+            // subStep)
+            List<Integer> returnStepList = (List<Integer>) shell
+                    .getVariable("function_" + methodName + "_"
+                            + arguments.size() + "_returnStep");
+            if (returnStepList == null) {
+                returnStepList = new ArrayList<Integer>();
+            }
+            returnStepList.add(shell.getStep());
+            shell.setVariable("function_" + methodName + "_" + arguments.size()
+                    + "_returnStep", returnStepList);
 
-			// update arguments with value
-			Scope currentScope = shell.getVariablesScope();
-			shell.setVariablesScope(Scope.LOCAL);
-			int i = 0;
-			for (Object varName : varNames) {
-				shell.setVariable(varName.toString(), arguments.get(i));
-				i++;
-			}
-			shell.setVariablesScope(currentScope);
+            List<Integer> returnSubStepList = (List<Integer>) shell
+                    .getVariable("function_" + methodName + "_"
+                            + arguments.size() + "_returnSubStep");
+            if (returnSubStepList == null) {
+                returnSubStepList = new ArrayList<Integer>();
+            }
+            returnSubStepList.add(shell.getSubStep());
+            shell.setVariable("function_" + methodName + "_" + arguments.size()
+                    + "_returnSubStep", returnSubStepList);
 
-			// go to the function
-			shell.setNextStep(goToStep + 1);
-			return null;
+            // enter in namespace and set shareNameSpace to false.
+            shell.goIn("functionMethod");
 
-		} else {
-			// remove the flag that identified it comes from the end function
-			shell.unsetVariable("comeFromEnd");
+            // read variable names
+            List<Object> varNames = (List<Object>) shell
+                    .getVariable("function_" + methodName + "_"
+                            + arguments.size() + "_args");
 
-			// get the return value
-			List<Object> returnList = (List<Object>) shell
-					.getVariable("returnObjectList");
-			Object ret = returnList.get(returnList.size() - 1);
-			if ("##NULL##".equals(ret)) {
-				ret = null;
-			}
+            // update arguments with value
+            Scope currentScope = shell.getVariablesScope();
+            shell.setVariablesScope(Scope.LOCAL);
+            int i = 0;
+            for (Object varName : varNames) {
+                shell.setVariable(varName.toString(), arguments.get(i));
+                i++;
+            }
+            shell.setVariablesScope(currentScope);
 
-			// remove the current function of the list
-			List<String> functionMethodList = (List<String>) shell
-					.getVariable("functionMethodList");
-			functionMethodList.remove(functionMethodList.size() - 1);
-			if (functionMethodList.size() == 0) {
-				shell.unsetVariable("functionMethodList");
-			} else {
-				shell.setVariable("functionMethodList", functionMethodList);
-			}
+            // go to the function
+            shell.setNextStep(goToStep + 1);
+            return null;
 
-			// remove this return value from the list
-			returnList.remove(returnList.size() - 1);
-			shell.setVariable("returnObjectList", returnList);
+        } else {
+            // remove the flag that identified it comes from the end function
+            shell.unsetVariable("comeFromEnd");
 
-			// remove the return step & substep from the lists
-			List<Integer> returnStepList = (List<Integer>) shell
-					.getVariable("function_" + methodName + "_"
-							+ arguments.size() + "_returnStep");
-			List<Integer> returnSubStepList = (List<Integer>) shell
-					.getVariable("function_" + methodName + "_"
-							+ arguments.size() + "_returnSubStep");
-			returnStepList.remove(returnStepList.size() - 1);
-			returnSubStepList.remove(returnSubStepList.size() - 1);
-			shell.setVariable("function_" + methodName + "_" + arguments.size()
-					+ "_returnStep", returnStepList);
-			shell.setVariable("function_" + methodName + "_" + arguments.size()
-					+ "_returnSubStep", returnSubStepList);
+            // get the return value
+            List<Object> returnList = (List<Object>) shell
+                    .getVariable("returnObjectList");
+            Object ret = returnList.get(returnList.size() - 1);
+            if ("##NULL##".equals(ret)) {
+                ret = null;
+            }
 
-			return ret;
-		}
-	}
+            // remove the current function of the list
+            List<String> functionMethodList = (List<String>) shell
+                    .getVariable("functionMethodList");
+            functionMethodList.remove(functionMethodList.size() - 1);
+            if (functionMethodList.size() == 0) {
+                shell.unsetVariable("functionMethodList");
+            } else {
+                shell.setVariable("functionMethodList", functionMethodList);
+            }
 
-	/**
-	 * The return of the function.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 * @param object
-	 *            the object to return.
-	 */
-	@SuppressWarnings("unchecked")
-	public final void returnMethod(final Shell shell, final Object object) {
+            // remove this return value from the list
+            returnList.remove(returnList.size() - 1);
+            shell.setVariable("returnObjectList", returnList);
 
-		// set the return value
-		List<Object> returnList = (List<Object>) shell
-				.getVariable("returnObjectList");
-		returnList.set(returnList.size() - 1, object);
-		shell.setVariable("returnObjectList", returnList);
+            // remove the return step & substep from the lists
+            List<Integer> returnStepList = (List<Integer>) shell
+                    .getVariable("function_" + methodName + "_"
+                            + arguments.size() + "_returnStep");
+            List<Integer> returnSubStepList = (List<Integer>) shell
+                    .getVariable("function_" + methodName + "_"
+                            + arguments.size() + "_returnSubStep");
+            returnStepList.remove(returnStepList.size() - 1);
+            returnSubStepList.remove(returnSubStepList.size() - 1);
+            shell.setVariable("function_" + methodName + "_" + arguments.size()
+                    + "_returnStep", returnStepList);
+            shell.setVariable("function_" + methodName + "_" + arguments.size()
+                    + "_returnSubStep", returnSubStepList);
 
-		// lock until the end of the function
-		String ns = shell.getCurrent();
-		shell.lock(ns.substring(0, ns.lastIndexOf("functionMethod")
-				+ "functionMethod".length()));
-	}
+            return ret;
+        }
+    }
 
-	/**
-	 * The end of the function.
-	 * 
-	 * @param shell
-	 *            the concerned shell.
-	 */
-	@SuppressWarnings("unchecked")
-	public final void endfunctionMethod(final Shell shell) {
+    /**
+     * The return of the function.
+     * 
+     * @param shell
+     *            the concerned shell.
+     * @param object
+     *            the object to return.
+     */
+    @SuppressWarnings("unchecked")
+    public final void returnMethod(final Shell shell, final Object object) {
 
-		List<String> functionMethodList = (List<String>) shell
-				.getVariable("functionMethodList");
+        // set the return value
+        List<Object> returnList = (List<Object>) shell
+                .getVariable("returnObjectList");
+        returnList.set(returnList.size() - 1, object);
+        shell.setVariable("returnObjectList", returnList);
 
-		// if it was after a call
-		if (functionMethodList != null && !functionMethodList.isEmpty()) {
+        // lock until the end of the function
+        String ns = shell.getCurrent();
+        shell.lock(ns.substring(0, ns.lastIndexOf("functionMethod")
+                + "functionMethod".length()));
+    }
 
-			// get the current method with number of parameters
-			Object methodName = functionMethodList.get(functionMethodList
-					.size() - 1);
+    /**
+     * The end of the function.
+     * 
+     * @param shell
+     *            the concerned shell.
+     */
+    @SuppressWarnings("unchecked")
+    public final void endfunctionMethod(final Shell shell) {
 
-			// get the step & substep to return
-			List<Integer> returnStepList = (List<Integer>) shell
-					.getVariable("function_" + methodName + "_returnStep");
-			Integer step = returnStepList.get(returnStepList.size() - 1);
+        List<String> functionMethodList = (List<String>) shell
+                .getVariable("functionMethodList");
 
-			List<Integer> returnSubStepList = (List<Integer>) shell
-					.getVariable("function_" + methodName + "_returnSubStep");
-			Integer subStep = returnSubStepList
-					.get(returnSubStepList.size() - 1);
+        // if it was after a call
+        if (functionMethodList != null && !functionMethodList.isEmpty()) {
 
-			// set a flag to say it comes from end function
-			shell.setVariable("comeFromEnd", true);
+            // get the current method with number of parameters
+            Object methodName = functionMethodList.get(functionMethodList
+                    .size() - 1);
 
-			// modify the current step & substep
-			shell.setNextStep(step, subStep);
-		}
-	}
+            // get the step & substep to return
+            List<Integer> returnStepList = (List<Integer>) shell
+                    .getVariable("function_" + methodName + "_returnStep");
+            Integer step = returnStepList.get(returnStepList.size() - 1);
+
+            List<Integer> returnSubStepList = (List<Integer>) shell
+                    .getVariable("function_" + methodName + "_returnSubStep");
+            Integer subStep = returnSubStepList
+                    .get(returnSubStepList.size() - 1);
+
+            // set a flag to say it comes from end function
+            shell.setVariable("comeFromEnd", true);
+
+            // modify the current step & substep
+            shell.setNextStep(step, subStep);
+        }
+    }
 
 }
