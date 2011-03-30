@@ -13,7 +13,7 @@ $shell := $context.getBean("shell")
 $shell.setLazyLoading(true)
 $req := null
 $listReqs := new("ArrayList") 
-while(["bye" != $req])
+while(true)
 	write ynot>
 	$req := readLine
 	if(["history" = $req])

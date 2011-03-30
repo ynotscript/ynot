@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import org.springframework.context.ApplicationContext;
 
 import ynot.core.entity.Shell;
+import ynot.util.io.FileManager;
 import ynot.vm.VirtualMachine.ContextKey;
 
 /**
@@ -21,16 +22,17 @@ public final class Launcher {
 	 * To launch a ynot script.
 	 * 
 	 * @param args
-	 *            need to contains the ynot script fillpath.
-	 * @throws IOException
-	 *             if something is wrong.
+	 *            need to contains the ynot script fillpath else it will launch
+	 *            the console.
 	 */
-	public static void main(final String[] args) throws IOException {
-		if (args.length == 0) {
-			return;
-		}
+	public static void main(final String[] args) {
 		try {
-			String script = args[0];
+			String sep = FileManager.FILE_SEPARATOR;
+			String script = VirtualMachine.getBasePath() + sep + "tools" + sep
+					+ "console.ynot";
+			if (args.length > 0) {
+				script = args[0];
+			}
 			VirtualMachine vm;
 			vm = new VirtualMachine();
 			ApplicationContext context = vm.getContext(script);
@@ -40,7 +42,11 @@ public final class Launcher {
 			e.printStackTrace();
 			InputStreamReader inp = new InputStreamReader(System.in);
 			BufferedReader br = new BufferedReader(inp);
-			br.readLine();
+			try {
+				br.readLine();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}
 
 	}

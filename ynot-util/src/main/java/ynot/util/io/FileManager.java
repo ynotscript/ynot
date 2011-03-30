@@ -2,6 +2,7 @@ package ynot.util.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Class to manage file through console.
@@ -18,14 +19,14 @@ public class FileManager {
 	/**
 	 * The file separator.
 	 */
-	private String fileSeparator;
+	public static final String FILE_SEPARATOR = System.getProperties()
+			.getProperty("file.separator");
 
 	/**
 	 * Default constructor (take the use home as initialPath).
 	 */
 	public FileManager() {
 		this(System.getProperties().getProperty("user.home"));
-		fileSeparator = System.getProperties().getProperty("file.separator");
 	}
 
 	/**
@@ -48,6 +49,9 @@ public class FileManager {
 	 */
 	public final void cd(final String onePath) throws FileNotFoundException {
 		String dirPath = onePath;
+		if (null == dirPath) {
+			dirPath = System.getProperties().getProperty("user.home");
+		}
 		if (".".equals(dirPath)) {
 			dirPath = currentDirectory.getAbsolutePath();
 		}
@@ -72,7 +76,7 @@ public class FileManager {
 		}
 		if (!dirFile.isAbsolute()) {
 			dirFile = new File(currentDirectory.getAbsolutePath()
-					+ fileSeparator + dirFile.getPath());
+					+ FILE_SEPARATOR + dirFile.getPath());
 		}
 		if (!dirFile.exists() || !dirFile.isDirectory()) {
 			throw new FileNotFoundException(
@@ -93,6 +97,41 @@ public class FileManager {
 			} else if (listOfFiles[i].isDirectory()) {
 				System.out.println("(d) " + listOfFiles[i].getName());
 			}
+		}
+	}
+
+	/**
+	 * To create a new directory.
+	 * 
+	 * @param oneDir
+	 *            the concerned directory.
+	 * @throws IOException
+	 *             if not able to create.
+	 */
+	public final void mkdir(final String oneDir) throws IOException {
+		mkdir(new File(oneDir));
+	}
+
+	/**
+	 * To create a new directory.
+	 * 
+	 * @param oneDir
+	 *            the concerned directory.
+	 * @throws IOException
+	 *             if not able to create.
+	 */
+	public final void mkdir(final File oneDir) throws IOException {
+		File dirFile = oneDir;
+		if (null == dirFile) {
+			throw new IOException("The path is null");
+		}
+		if (!dirFile.isAbsolute()) {
+			dirFile = new File(currentDirectory.getAbsolutePath()
+					+ FILE_SEPARATOR + dirFile.getPath());
+		}
+		if (!dirFile.mkdir()) {
+			throw new IOException("Not able to create the directory :"
+					+ dirFile.getPath());
 		}
 	}
 }
