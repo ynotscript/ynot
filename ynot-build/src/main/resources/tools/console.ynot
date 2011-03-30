@@ -16,7 +16,7 @@ $listReqs := new("ArrayList")
 while(["bye" != $req])
 	write ynot>
 	$req := readLine
-	if(["flush" = $req])
+	if(["history" = $req])
 		for($listReqs, "oneReq")
 			echo ${oneReq}
 		end
