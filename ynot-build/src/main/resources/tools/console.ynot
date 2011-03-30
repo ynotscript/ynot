@@ -17,7 +17,7 @@ while(["bye" != $req])
 	write ynot>
 	$req := readLine
 	if(["flush" = $req])
-		for($listReq, "oneReq")
+		for($listReqs, "oneReq")
 			echo ${oneReq}
 		end
 		continue
