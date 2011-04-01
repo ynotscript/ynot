@@ -77,12 +77,11 @@ public class Structure {
     public final void elseifMethod(final Shell shell, final Boolean condition) {
         Scope currentScope = shell.getVariablesScope();
         shell.setVariablesScope(Scope.LOCAL);
-        String block = shell.goOut();
         if (condition && shell.getVariable("enter_ifMethod") == null) {
+        	String block = shell.goOut();
             shell.setVariable("enter_ifMethod", "true");
             shell.goIn(block);
         } else {
-            shell.goIn(block);
             shell.lock();
         }
         shell.setVariablesScope(currentScope);
@@ -97,12 +96,11 @@ public class Structure {
     public final void elseMethod(final Shell shell) {
         Scope currentScope = shell.getVariablesScope();
         shell.setVariablesScope(Scope.LOCAL);
-        String block = shell.goOut();
         if (shell.getVariable("enter_ifMethod") == null) {
+        	String block = shell.goOut();
             shell.setVariable("enter_ifMethod", "true");
             shell.goIn(block);
         } else {
-            shell.goIn(block);
             shell.lock();
         }
         shell.setVariablesScope(currentScope);

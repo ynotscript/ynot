@@ -21,6 +21,9 @@ while(true)
 			echo ${oneReq}
 		end
 		continue
+	elseif(["history -c" = $req])
+		$listReqs.clear()
+		continue
 	end
 	$reqBytes := $req.getBytes("UTF-8")
 	$out.write($reqBytes)
