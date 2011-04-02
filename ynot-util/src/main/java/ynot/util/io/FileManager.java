@@ -2,6 +2,7 @@ package ynot.util.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
@@ -88,9 +89,17 @@ public class FileManager {
 
 	/**
 	 * To list the current directory.
+	 * 
+	 * @param pattern pattern to use to filter the files.
 	 */
-	public final void ls() {
-		File[] listOfFiles = currentDirectory.listFiles();
+	public final void ls(final String pattern) {
+		File[] listOfFiles = null;
+		if (null == pattern) {
+			listOfFiles = currentDirectory.listFiles();
+		} else {
+			FilenameFilter filter = new SimpleFilenameFilter(pattern);
+			listOfFiles = currentDirectory.listFiles(filter);
+		}
 		for (int i = 0; i < listOfFiles.length; i++) {
 			if (listOfFiles[i].isFile()) {
 				System.out.println("(f) " + listOfFiles[i].getName());
