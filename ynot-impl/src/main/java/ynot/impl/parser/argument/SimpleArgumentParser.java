@@ -110,7 +110,7 @@ public class SimpleArgumentParser implements ArgumentParser<String> {
 			for (String onePart : parts) {
 				((List) ret).add(parse(onePart));
 			}
-		} else if (str.contains("..")) {
+		} else if (str.matches("[0-9]+\\.\\.[0-9]+")) {
 			// List Number
 			ret = new ArrayList<Object>();
 			String[] numbers = str.split("\\.\\.");
