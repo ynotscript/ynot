@@ -239,8 +239,8 @@ public class Shell implements Cloneable {
 					var = "NULL";
 				}
 				fullstr += var.toString();
-				fullstr += str.substring(endCharPos + 1);
-				return getArg(fullstr);
+				fullstr += getArg(str.substring(endCharPos + 1));
+				return fullstr;
 			} else if (str.startsWith("@$") && str.endsWith("@")) {
 				oneArg = getVariable(str.substring(2, str.length() - 1));
 			} else {
