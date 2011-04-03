@@ -159,7 +159,8 @@ public final class ReflectionManager {
 		} catch (Exception e) {
 			// try to find the good one
 			for (Method oneMethodToTest : cl.getMethods()) {
-				if (!oneMethodToTest.getName().equals(methodName)) {
+				if (!oneMethodToTest.getName().toLowerCase()
+						.equals(methodName.toLowerCase())) {
 					continue;
 				}
 				Class[] parameterTypesToTest = oneMethodToTest

@@ -3,6 +3,8 @@ package ynot.util.io;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -203,19 +205,19 @@ public class FileManager {
 		if (null != dir) {
 			dir = getAbsolutePathFile(dir);
 			if (!dir.exists()) {
-				File[] children = ls(dir.getPath(), false);
-				if (1 == children.length) {
-					dir = children[0];
-				} else if (children.length > 1) {
+				List<File> children = ls(dir.getPath(), false);
+				if (1 == children.size()) {
+					dir = children.get(0);
+				} else if (children.size() > 1) {
 					if (display) {
 						ls(dir.getPath());
 						return;
 					}
 				} else {
-					File[] children2 = ls(dir.getPath() + ".*", false);
-					if (1 == children2.length) {
-						dir = children2[0];
-					} else if (children2.length > 1) {
+					List<File> children2 = ls(dir.getPath() + ".*", false);
+					if (1 == children2.size()) {
+						dir = children2.get(0);
+					} else if (children2.size() > 1) {
 						if (display) {
 							ls(dir.getPath() + ".*");
 							return;
@@ -239,7 +241,8 @@ public class FileManager {
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final File[] ls(final String oneDirAndPattern) throws IOException {
+	public final List<File> ls(final String oneDirAndPattern)
+			throws IOException {
 		return ls(oneDirAndPattern, true);
 	}
 
@@ -254,8 +257,8 @@ public class FileManager {
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final File[] ls(final String oneDirAndPattern, final boolean display)
-			throws IOException {
+	public final List<File> ls(final String oneDirAndPattern,
+			final boolean display) throws IOException {
 		String dir = null;
 		String pattern = null;
 		if (null != oneDirAndPattern && !oneDirAndPattern.trim().isEmpty()) {
@@ -287,7 +290,7 @@ public class FileManager {
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final File[] ls(final String newDir, final String newPattern,
+	public final List<File> ls(final String newDir, final String newPattern,
 			final boolean display) throws IOException {
 		File dir = null;
 		String pattern = null;
@@ -313,14 +316,14 @@ public class FileManager {
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final File[] ls(final File newDir, final String newPattern,
+	public final List<File> ls(final File newDir, final String newPattern,
 			final boolean display) throws IOException {
 		File dir = newDir;
 		String pattern = newPattern;
 		if (null == dir) {
 			dir = getCurrentDirectory();
 		}
-		File[] listOfFiles = getChildren(dir, pattern);
+		List<File> listOfFiles = getChildren(dir, pattern);
 		if (display) {
 			displayFiles(listOfFiles);
 		}
@@ -338,7 +341,7 @@ public class FileManager {
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final File[] getChildren(final File newDir, final String pattern)
+	public final List<File> getChildren(final File newDir, final String pattern)
 			throws IOException {
 		File dir = newDir;
 		dir = getAbsolutePathFile(dir);
@@ -350,17 +353,17 @@ public class FileManager {
 			FilenameFilter filter = new SimpleFilenameFilter(pattern);
 			listOfFiles = dir.listFiles(filter);
 		}
-		return listOfFiles;
+		return Arrays.asList(listOfFiles);
 	}
 
 	/**
 	 * To display files.
 	 * 
-	 * @param files
+	 * @param listOfFiles
 	 *            the concerned files.
 	 */
-	private void displayFiles(final File[] files) {
-		for (File oneFile : files) {
+	private void displayFiles(final List<File> listOfFiles) {
+		for (File oneFile : listOfFiles) {
 			displayFile(oneFile);
 		}
 	}
@@ -542,7 +545,7 @@ public class FileManager {
 		if (null == dir) {
 			dir = getCurrentDirectory();
 		}
-		File[] listOfFiles = getChildren(dir, pattern);
+		List<File> listOfFiles = getChildren(dir, pattern);
 		rm(listOfFiles, forced, recursive);
 	}
 
@@ -558,11 +561,12 @@ public class FileManager {
 	 * @throws IOException
 	 *             if not able to delete.
 	 */
-	public final void rm(final File[] listOfFiles, final boolean forced,
+	public final void rm(final List<File> listOfFiles, final boolean forced,
 			final boolean recursive) throws IOException {
 		for (File oneFileToRemove : listOfFiles) {
 			if (recursive && oneFileToRemove.isDirectory()) {
-				rm(oneFileToRemove.listFiles(), forced, recursive);
+				rm(Arrays.asList(oneFileToRemove.listFiles()), forced,
+						recursive);
 			}
 			if (!forced) {
 				System.out.println("Do you want to delete (y/n): "
@@ -667,6 +671,15 @@ public class FileManager {
 		}
 		from = getAbsolutePathFile(from);
 		to = getAbsolutePathFile(to);
+		if (!from.exists()) {
+			List<File> files = ls(fromFile.getPath(), false);
+			if (!files.isEmpty()) {
+				for (File oneFile : files) {
+					mv(oneFile, toFile);
+				}
+				return;
+			}
+		}
 		checkItExists(from);
 		boolean success = false;
 		if (!to.exists()) {
@@ -739,7 +752,7 @@ public class FileManager {
 		}
 		dir = getAbsolutePathFile(dir);
 		checkItIsDirectory(dir);
-		File[] children = getChildren(dir, null);
+		List<File> children = getChildren(dir, null);
 		for (File oneFile : children) {
 			displayFile(level, oneFile);
 			if (oneFile.isDirectory()) {
