@@ -29,7 +29,6 @@
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>ynot-lang</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
