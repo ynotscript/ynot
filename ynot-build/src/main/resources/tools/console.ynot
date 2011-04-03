@@ -1,5 +1,7 @@
 import("ynot.impl.provider.request")
 import("ynot.vm")
+$INTEGER := static("Integer")
+$ARRAYS := static("Arrays")
 
 $vm := new VirtualMachine
 $provider := new("InputStreamRequestProvider", {"console"})
@@ -17,21 +19,37 @@ while(true)
 	write ynot>
 	$req := readLine
 	if(["history" = $req])
+		$i := 0
 		for($listReqs, "oneReq")
-			echo ${oneReq}
+			echo ${i} : ${oneReq}
+			$i++
 		end
 		continue
 	elseif(["history -c" = $req])
 		$listReqs.clear()
 		continue
+	elseif(["history -r" = $req])
+		echo("which line(s) ?")
+		$lines := readLine
+		$linesNumber := $lines.split(",")
+		for([$ARRAYS.asList($linesNumber)], "lineNumber")
+			$listReqs.remove([$INTEGER.parseInt($lineNumber)])
+		end
+		continue
+	elseif(["history -f" = $req])
+		echo which file ?
+		$file := readLine
+		$shell.setVariable("listReqsToFlush", $listReqs)
+		$shell.setVariable("fileWhereFlush", $file)
+		$req := "flush($fileWhereFlush, $listReqsToFlush)"
+		$listReqs := new("ArrayList") 
 	end
+	$listReqs.add($req)
 	$reqBytes := $req.getBytes("UTF-8")
 	$out.write($reqBytes)
 	$out.flush()
 	while([$shell.hasStep()])
-		if([$shell.tryToRunStep()])
-			$listReqs.add($req)
-		end 
+		$shell.tryToRunStep()
 		$shell.nextStep()
 	end
 end

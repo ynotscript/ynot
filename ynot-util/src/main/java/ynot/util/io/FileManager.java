@@ -1,8 +1,11 @@
 package ynot.util.io;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -213,16 +216,6 @@ public class FileManager {
 						ls(dir.getPath());
 						return;
 					}
-				} else {
-					List<File> children2 = ls(dir.getPath() + ".*", false);
-					if (1 == children2.size()) {
-						dir = children2.get(0);
-					} else if (children2.size() > 1) {
-						if (display) {
-							ls(dir.getPath() + ".*");
-							return;
-						}
-					}
 				}
 			}
 		}
@@ -230,6 +223,39 @@ public class FileManager {
 		if (display) {
 			pwd();
 		}
+	}
+
+	/**
+	 * To read a file with maybe a regexp (or not) to find the file.
+	 * 
+	 * @param oneDirAndPattern
+	 *            the path to list with maybe a pattern.
+	 * @param display
+	 *            if true so display.
+	 * @return the found files.
+	 * @throws IOException
+	 *             if the directory doesn't exist.
+	 */
+	public final List<String> less(final String oneDirAndPattern,
+			final boolean display) throws IOException {
+		List<String> ret = new ArrayList<String>();
+		List<File> files = ls(oneDirAndPattern, false);
+		if (files.size() == 1) {
+			File file = files.get(0);
+			if (display) {
+				System.out.println(file.getCanonicalPath());
+			}
+			Scanner scan = new Scanner(file);
+			while (scan.hasNext()) {
+				String next = scan.nextLine();
+				ret.add(next);
+				if (display) {
+					System.out.println(next);
+				}
+			}
+			return ret;
+		}
+		throw new IOException("File not found " + oneDirAndPattern);
 	}
 
 	/**
@@ -324,6 +350,9 @@ public class FileManager {
 			dir = getCurrentDirectory();
 		}
 		List<File> listOfFiles = getChildren(dir, pattern);
+		if (listOfFiles.isEmpty() && !pattern.isEmpty()) {
+			listOfFiles = getChildren(dir, pattern + ".*");
+		}
 		if (display) {
 			displayFiles(listOfFiles);
 		}
@@ -410,15 +439,18 @@ public class FileManager {
 	 * 
 	 * @param oneFile
 	 *            the concerned file.
+	 * @param content
+	 *            content to write (or null if nothing).
 	 * @throws IOException
 	 *             if not able to create.
 	 */
-	public final void mkfile(final String oneFile) throws IOException {
+	public final void mkfile(final String oneFile, final Object content)
+			throws IOException {
 		File file = null;
 		if (null != oneFile && !oneFile.trim().isEmpty()) {
 			file = new File(oneFile.trim());
 		}
-		mkfile(file);
+		mkfile(file, content);
 	}
 
 	/**
@@ -426,10 +458,14 @@ public class FileManager {
 	 * 
 	 * @param oneFile
 	 *            the concerned file.
+	 * @param content
+	 *            content to write (or null if nothing).
 	 * @throws IOException
 	 *             if not able to create.
 	 */
-	public final void mkfile(final File oneFile) throws IOException {
+	@SuppressWarnings("rawtypes")
+	public final void mkfile(final File oneFile, final Object content)
+			throws IOException {
 		File fileFile = oneFile;
 		if (null == fileFile) {
 			throw new IOException("The path is null");
@@ -439,6 +475,17 @@ public class FileManager {
 		if (!fileFile.createNewFile()) {
 			throw new IOException("Not able to create the file :"
 					+ fileFile.getPath());
+		}
+		if (null != content) {
+			PrintWriter output = new PrintWriter(new FileWriter(fileFile));
+			if (content instanceof List) {
+				for (Object oneThing : (List) content) {
+					output.println(oneThing);
+				}
+			} else {
+				output.println(content);
+			}
+			output.close();
 		}
 	}
 

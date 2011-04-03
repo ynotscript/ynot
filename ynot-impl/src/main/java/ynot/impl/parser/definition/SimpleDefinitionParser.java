@@ -164,7 +164,11 @@ public class SimpleDefinitionParser implements DefinitionParser<String> {
 			className = str.trim().substring(1, str.trim().length() - 1);
 		} else {
 			Object arg = parseArgument(str.trim());
-			className = arg.getClass().getName();
+			if (arg == null) {
+				className = Object.class.getName();
+			} else {
+				className = arg.getClass().getName();
+			}
 			def.getPredefinedValues(methodName).put(nbArg, arg);
 		}
 		return className;
