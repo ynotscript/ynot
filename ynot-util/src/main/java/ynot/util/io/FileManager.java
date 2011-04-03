@@ -445,10 +445,10 @@ public class FileManager {
 		File from = null;
 		File to = null;
 		if (null != fromStr && !fromStr.trim().isEmpty()) {
-			from = new File(fromStr);
+			from = new File(fromStr.trim());
 		}
 		if (null != toStr && !toStr.trim().isEmpty()) {
-			to = new File(toStr);
+			to = new File(toStr.trim());
 		}
 		mv(from, to);
 	}
@@ -476,8 +476,17 @@ public class FileManager {
 		from = getAbsolutePathFile(from);
 		to = getAbsolutePathFile(to);
 		checkItExists(from);
-		checkItDoesntExist(to);
-		if (!from.renameTo(to)) {
+		boolean success = false;
+		if (!to.exists()) {
+			success = from.renameTo(to);
+		} else if (to.exists() && to.isDirectory()) {
+			File newPath = new File(to.getCanonicalPath() + FILE_SEPARATOR
+					+ from.getName());
+			success = from.renameTo(newPath);
+		} else {
+			throw new IOException("This file already exist :" + to.getPath());
+		}
+		if (!success) {
 			throw new IOException("Not able to move the file from :"
 					+ from.getPath() + " to " + to.getPath());
 		}
