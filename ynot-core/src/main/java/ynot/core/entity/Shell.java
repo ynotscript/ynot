@@ -112,6 +112,9 @@ public class Shell implements Cloneable {
 			runStep();
 			return true;
 		} catch (Exception e) {
+			if (lazyLoading) {
+				commands.remove(progress.getStep());
+			}
 			logger.error("This command is not correct", e);
 			return false;
 		}
