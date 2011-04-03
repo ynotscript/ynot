@@ -1,7 +1,6 @@
 package ynot.util.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Properties;
@@ -41,10 +40,10 @@ public class FileManager {
 	/**
 	 * Default constructor (take the user home as initialPath).
 	 * 
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the user home is not set.
 	 */
-	public FileManager() throws FileNotFoundException {
+	public FileManager() throws IOException {
 		this(null);
 	}
 
@@ -53,11 +52,10 @@ public class FileManager {
 	 * 
 	 * @param newInitialPath
 	 *            the path to use.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public FileManager(final String newInitialPath)
-			throws FileNotFoundException {
+	public FileManager(final String newInitialPath) throws IOException {
 		File initialPath = null;
 		if (null != newInitialPath && !newInitialPath.trim().isEmpty()) {
 			initialPath = new File(newInitialPath.trim());
@@ -70,22 +68,17 @@ public class FileManager {
 	 * 
 	 * @param newDir
 	 *            the currentDirectory to set
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the directory doens't exist.
 	 */
-	public final void setCurrentDirectory(final File newDir)
-			throws FileNotFoundException {
+	public final void setCurrentDirectory(final File newDir) throws IOException {
 		File dir = newDir;
 		if (null == dir) {
 			dir = new File(USER_HOME);
 		}
 		dir = getAbsolutePathFile(dir);
 		checkItIsDirectory(dir);
-		try {
-			this.currentDirectory = dir.getCanonicalFile();
-		} catch (IOException e) {
-			throw new FileNotFoundException(e.getMessage());
-		}
+		this.currentDirectory = dir.getCanonicalFile();
 	}
 
 	/**
@@ -94,21 +87,20 @@ public class FileManager {
 	 * @param newFile
 	 *            the concerned file.
 	 * @return the absolute path file.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if there is a problem with the current directory.
 	 */
-	private File getAbsolutePathFile(final File newFile)
-			throws FileNotFoundException {
-		try {
-			File file = newFile;
-			if (!file.isAbsolute()) {
-				file = new File(currentDirectory.getCanonicalPath()
-						+ FILE_SEPARATOR + file.getPath());
-			}
-			return file;
-		} catch (IOException e) {
-			throw new FileNotFoundException(e.getMessage());
+	public final File getAbsolutePathFile(final File newFile)
+			throws IOException {
+		File file = newFile;
+		if (null == file) {
+			file = new File(".");
 		}
+		if (!file.isAbsolute()) {
+			file = new File(getCurrentDirectory().getCanonicalPath()
+					+ FILE_SEPARATOR + file.getPath());
+		}
+		return file;
 	}
 
 	/**
@@ -116,13 +108,16 @@ public class FileManager {
 	 * 
 	 * @param file
 	 *            the concerned file.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the file doesn't exist.
 	 */
-	private void checkItExists(final File file) throws FileNotFoundException {
-		if (null == file || !file.exists()) {
-			throw new FileNotFoundException("It doesn't exist :"
-					+ file.getPath());
+	private void checkItExists(final File file) throws IOException {
+		if (null == file) {
+			throw new IOException(
+					"Can't check if it exists because file is null");
+		}
+		if (!file.exists()) {
+			throw new IOException("It doesn't exist :" + file.getPath());
 		}
 	}
 
@@ -135,6 +130,10 @@ public class FileManager {
 	 *             if the file already exists.
 	 */
 	private void checkItDoesntExist(final File file) throws IOException {
+		if (null == file) {
+			throw new IOException(
+					"Can't check if it doesn't exist because file is null");
+		}
 		if (file.exists()) {
 			throw new IOException("It already exists :" + file.getPath());
 		}
@@ -145,14 +144,13 @@ public class FileManager {
 	 * 
 	 * @param dir
 	 *            the concerned directory.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if it's not a directory or it's doesn't exist.
 	 */
-	private void checkItIsDirectory(final File dir)
-			throws FileNotFoundException {
+	private void checkItIsDirectory(final File dir) throws IOException {
 		checkItExists(dir);
 		if (!dir.isDirectory()) {
-			throw new FileNotFoundException("This is a file, not a directory :"
+			throw new IOException("This is a file, not a directory :"
 					+ dir.getPath());
 		}
 	}
@@ -162,15 +160,31 @@ public class FileManager {
 	 * 
 	 * @param newDirPath
 	 *            the new directory.
-	 * @throws FileNotFoundException
+	 * @param display
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void cd(final String newDirPath) throws FileNotFoundException {
+	public final void cd(final String newDirPath) throws IOException {
+		cd(newDirPath, true);
+	}
+
+	/**
+	 * To change directory.
+	 * 
+	 * @param newDirPath
+	 *            the new directory.
+	 * @param display
+	 *            if true so display when several files can be good.
+	 * @throws IOException
+	 *             if the directory doesn't exist.
+	 */
+	public final void cd(final String newDirPath, final boolean display)
+			throws IOException {
 		File dirPath = null;
 		if (null != newDirPath && !newDirPath.trim().isEmpty()) {
 			dirPath = new File(newDirPath.trim());
 		}
-		cd(dirPath);
+		cd(dirPath, display);
 	}
 
 	/**
@@ -178,11 +192,42 @@ public class FileManager {
 	 * 
 	 * @param oneDir
 	 *            the new directory.
-	 * @throws FileNotFoundException
+	 * @param display
+	 *            if true so display when several files can be good.
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void cd(final File oneDir) throws FileNotFoundException {
-		setCurrentDirectory(oneDir);
+	public final void cd(final File oneDir, final boolean display)
+			throws IOException {
+		File dir = oneDir;
+		if (null != dir) {
+			dir = getAbsolutePathFile(dir);
+			if (!dir.exists()) {
+				File[] children = ls(dir.getPath(), false);
+				if (1 == children.length) {
+					dir = children[0];
+				} else if (children.length > 1) {
+					if (display) {
+						ls(dir.getPath());
+						return;
+					}
+				} else {
+					File[] children2 = ls(dir.getPath() + ".*", false);
+					if (1 == children2.length) {
+						dir = children2[0];
+					} else if (children2.length > 1) {
+						if (display) {
+							ls(dir.getPath() + ".*");
+							return;
+						}
+					}
+				}
+			}
+		}
+		setCurrentDirectory(dir);
+		if (display) {
+			pwd();
+		}
 	}
 
 	/**
@@ -190,10 +235,27 @@ public class FileManager {
 	 * 
 	 * @param oneDirAndPattern
 	 *            the path to list with maybe a pattern.
+	 * @return the found files.
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void ls(final String oneDirAndPattern) throws IOException {
+	public final File[] ls(final String oneDirAndPattern) throws IOException {
+		return ls(oneDirAndPattern, true);
+	}
+
+	/**
+	 * To list a directory (or current) with maybe a regexp (or not).
+	 * 
+	 * @param oneDirAndPattern
+	 *            the path to list with maybe a pattern.
+	 * @param display
+	 *            if true so display.
+	 * @return the found files.
+	 * @throws IOException
+	 *             if the directory doesn't exist.
+	 */
+	public final File[] ls(final String oneDirAndPattern, final boolean display)
+			throws IOException {
 		String dir = null;
 		String pattern = null;
 		if (null != oneDirAndPattern && !oneDirAndPattern.trim().isEmpty()) {
@@ -209,7 +271,7 @@ public class FileManager {
 				pattern = dirAndPatternTrim;
 			}
 		}
-		ls(dir, pattern);
+		return ls(dir, pattern, display);
 	}
 
 	/**
@@ -219,11 +281,14 @@ public class FileManager {
 	 *            the path to list.
 	 * @param newPattern
 	 *            the regexp to use.
+	 * @param display
+	 *            if true so display.
+	 * @return the found files.
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void ls(final String newDir, final String newPattern)
-			throws IOException {
+	public final File[] ls(final String newDir, final String newPattern,
+			final boolean display) throws IOException {
 		File dir = null;
 		String pattern = null;
 		if (newDir != null && !newDir.trim().isEmpty()) {
@@ -232,7 +297,7 @@ public class FileManager {
 		if (newPattern != null && !newPattern.trim().isEmpty()) {
 			pattern = newPattern.trim();
 		}
-		ls(dir, pattern);
+		return ls(dir, pattern, display);
 	}
 
 	/**
@@ -242,18 +307,24 @@ public class FileManager {
 	 *            the path to list.
 	 * @param newPattern
 	 *            the regexp to use.
+	 * @param display
+	 *            if true so display.
+	 * @return the found files.
 	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void ls(final File newDir, final String newPattern)
-			throws IOException {
+	public final File[] ls(final File newDir, final String newPattern,
+			final boolean display) throws IOException {
 		File dir = newDir;
 		String pattern = newPattern;
 		if (null == dir) {
-			dir = currentDirectory;
+			dir = getCurrentDirectory();
 		}
 		File[] listOfFiles = getChildren(dir, pattern);
-		displayFiles(listOfFiles);
+		if (display) {
+			displayFiles(listOfFiles);
+		}
+		return listOfFiles;
 	}
 
 	/**
@@ -262,13 +333,13 @@ public class FileManager {
 	 * @param newDir
 	 *            the concerned directory.
 	 * @param pattern
-	 *            the regexp to use.
+	 *            the regexp to use or null of no filter.
 	 * @return the children.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	private File[] getChildren(final File newDir, final String pattern)
-			throws FileNotFoundException {
+	public final File[] getChildren(final File newDir, final String pattern)
+			throws IOException {
 		File dir = newDir;
 		dir = getAbsolutePathFile(dir);
 		checkItIsDirectory(dir);
@@ -369,19 +440,141 @@ public class FileManager {
 	}
 
 	/**
-	 * To remove an existing file or directory.
+	 * To remove a list of files or directories inside a directory (or current)
+	 * with a regexp (or all the files inside). Use the -r option to apply
+	 * recursive mode and -f to force without any question (you can combine
+	 * -rf).
 	 * 
-	 * @param oneFile
-	 *            the concerned file.
+	 * @param oneDirAndPattern
+	 *            the path to identify the directory to target to with maybe a
+	 *            pattern to identify the file to remove.
 	 * @throws IOException
-	 *             if not able to remove.
+	 *             if the directory doesn't exist.
 	 */
-	public final void rm(final String oneFile) throws IOException {
-		File file = null;
-		if (null != oneFile && !oneFile.trim().isEmpty()) {
-			file = new File(oneFile.trim());
+	public final void rm(final String oneDirAndPattern) throws IOException {
+		String dir = null;
+		String pattern = null;
+		boolean forced = false;
+		boolean recursive = false;
+		if (null != oneDirAndPattern && !oneDirAndPattern.trim().isEmpty()) {
+			String dirAndPatternTrim = oneDirAndPattern.trim();
+			if (dirAndPatternTrim.startsWith("-")) {
+				Scanner scan = new Scanner(dirAndPatternTrim);
+				StringBuilder builder = new StringBuilder();
+				while (scan.hasNext()) {
+					String next = scan.next();
+					if (next.startsWith("-")) {
+						builder.append(next);
+					} else {
+						dirAndPatternTrim = next;
+						break;
+					}
+				}
+				String options = builder.toString();
+				if (options.contains("f") || options.contains("F")) {
+					forced = true;
+				}
+				if (options.contains("r") || options.contains("R")) {
+					recursive = true;
+				}
+			}
+			if (dirAndPatternTrim.endsWith(FILE_SEPARATOR)) {
+				dir = dirAndPatternTrim;
+			} else if (dirAndPatternTrim.contains(FILE_SEPARATOR)) {
+				int separatorPos = dirAndPatternTrim
+						.lastIndexOf(FILE_SEPARATOR) + 1;
+				dir = dirAndPatternTrim.substring(0, separatorPos).trim();
+				pattern = dirAndPatternTrim.substring(separatorPos).trim();
+			} else {
+				pattern = dirAndPatternTrim;
+			}
 		}
-		rm(file);
+		rm(dir, pattern, forced, recursive);
+	}
+
+	/**
+	 * To remove a list of files inside a directory.
+	 * 
+	 * @param newDir
+	 *            the target directory.
+	 * @param newPattern
+	 *            the regexp to use to identify files (if null so it will take
+	 *            all).
+	 * @param forced
+	 *            if true so a confirmation will be asked for each deletion.
+	 * @param recursive
+	 *            if true it will use a recursive mode.
+	 * @throws IOException
+	 *             if not able to delete.
+	 */
+	public final void rm(final String newDir, final String newPattern,
+			final boolean forced, final boolean recursive) throws IOException {
+		File dir = null;
+		String pattern = null;
+		if (newDir != null && !newDir.trim().isEmpty()) {
+			dir = new File(newDir.trim());
+		}
+		if (newPattern != null && !newPattern.trim().isEmpty()) {
+			pattern = newPattern.trim();
+		}
+		rm(dir, pattern, forced, recursive);
+	}
+
+	/**
+	 * To remove a list of files inside a directory.
+	 * 
+	 * @param newDir
+	 *            the target directory.
+	 * @param newPattern
+	 *            the regexp to use to identify files (if null so it will take
+	 *            all).
+	 * @param forced
+	 *            if true so a confirmation will be asked for each deletion.
+	 * @param recursive
+	 *            if true it will use a recursive mode.
+	 * @throws IOException
+	 *             if not able to delete.
+	 */
+	public final void rm(final File newDir, final String newPattern,
+			final boolean forced, final boolean recursive) throws IOException {
+		File dir = newDir;
+		String pattern = newPattern;
+		if (null == dir) {
+			dir = getCurrentDirectory();
+		}
+		File[] listOfFiles = getChildren(dir, pattern);
+		rm(listOfFiles, forced, recursive);
+	}
+
+	/**
+	 * To remove a list of files.
+	 * 
+	 * @param listOfFiles
+	 *            the concerned files.
+	 * @param forced
+	 *            if true so a confirmation will be asked for each deletion.
+	 * @param recursive
+	 *            if true it will use a recursive mode.
+	 * @throws IOException
+	 *             if not able to delete.
+	 */
+	public final void rm(final File[] listOfFiles, final boolean forced,
+			final boolean recursive) throws IOException {
+		for (File oneFileToRemove : listOfFiles) {
+			if (recursive && oneFileToRemove.isDirectory()) {
+				rm(oneFileToRemove.listFiles(), forced, recursive);
+			}
+			if (!forced) {
+				System.out.println("Do you want to delete (y/n): "
+						+ oneFileToRemove.getCanonicalPath());
+				Scanner in = new Scanner(System.in);
+				if ("y".equals(in.nextLine().trim().toLowerCase())) {
+					rm(oneFileToRemove);
+				}
+			} else {
+				rm(oneFileToRemove);
+			}
+		}
 	}
 
 	/**
@@ -405,20 +598,19 @@ public class FileManager {
 	}
 
 	/**
-	 * To move an existing file or directory.
+	 * To move or rename an existing file or directory.
 	 * 
-	 * @param currentFileSpaceNewFile
-	 *            the current file and the destination file.
+	 * @param fromFileSpaceToFile
+	 *            the from file and the destination file.
 	 * @throws IOException
 	 *             if not able to move.
 	 */
-	public final void mv(final String currentFileSpaceNewFile)
-			throws IOException {
+	public final void mv(final String fromFileSpaceToFile) throws IOException {
 		String from = null;
 		String to = null;
-		if (null != currentFileSpaceNewFile
-				&& !currentFileSpaceNewFile.trim().isEmpty()) {
-			String line = currentFileSpaceNewFile.trim();
+		if (null != fromFileSpaceToFile
+				&& !fromFileSpaceToFile.trim().isEmpty()) {
+			String line = fromFileSpaceToFile.trim();
 			Scanner scanner = new Scanner(line);
 			if (scanner.hasNext()) {
 				from = scanner.next().trim();
@@ -431,7 +623,7 @@ public class FileManager {
 	}
 
 	/**
-	 * To move an existing file or directory.
+	 * To move or rename an existing file or directory.
 	 * 
 	 * @param fromStr
 	 *            the from file.
@@ -454,7 +646,7 @@ public class FileManager {
 	}
 
 	/**
-	 * To move an existing file or directory.
+	 * To move or rename an existing file or directory.
 	 * 
 	 * @param fromFile
 	 *            the current file.
@@ -468,10 +660,10 @@ public class FileManager {
 		File from = fromFile;
 		File to = toFile;
 		if (null == from) {
-			throw new FileNotFoundException("The from path is null");
+			throw new IOException("The from path is null");
 		}
 		if (null == to) {
-			throw new FileNotFoundException("The destination path is null");
+			throw new IOException("The destination path is null");
 		}
 		from = getAbsolutePathFile(from);
 		to = getAbsolutePathFile(to);
@@ -507,10 +699,10 @@ public class FileManager {
 	 * 
 	 * @param dir
 	 *            the concerned directory.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void tree(final String dir) throws FileNotFoundException {
+	public final void tree(final String dir) throws IOException {
 		File file = null;
 		if (null != dir && !dir.trim().isEmpty()) {
 			file = new File(dir.trim());
@@ -523,10 +715,10 @@ public class FileManager {
 	 * 
 	 * @param dir
 	 *            the concerned directory.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	public final void tree(final File dir) throws FileNotFoundException {
+	public final void tree(final File dir) throws IOException {
 		tree(0, dir);
 	}
 
@@ -537,11 +729,10 @@ public class FileManager {
 	 *            the current level.
 	 * @param oneDir
 	 *            the current directory.
-	 * @throws FileNotFoundException
+	 * @throws IOException
 	 *             if the directory doesn't exist.
 	 */
-	private void tree(final int level, final File oneDir)
-			throws FileNotFoundException {
+	private void tree(final int level, final File oneDir) throws IOException {
 		File dir = oneDir;
 		if (null == dir) {
 			dir = getCurrentDirectory();
