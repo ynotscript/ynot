@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.springframework.context.ApplicationContext;
-
-import ynot.core.entity.Shell;
+import ynot.lang.ProjectManager;
+import ynot.lang.VirtualMachine;
 import ynot.util.io.FileManager;
-import ynot.vm.VirtualMachine.ContextKey;
 
 /**
  * Launcher to use to launch ynot scripts.
@@ -27,17 +25,11 @@ public final class Launcher {
 	 */
 	public static void main(final String[] args) {
 		try {
-			String sep = FileManager.FILE_SEPARATOR;
-			String script = VirtualMachine.getBasePath() + sep + "tools" + sep
-					+ "console.ynot";
+			String script = getConsoleScript();
 			if (args.length > 0) {
 				script = args[0];
 			}
-			VirtualMachine vm;
-			vm = new VirtualMachine();
-			ApplicationContext context = vm.getContext(script);
-			Shell shell = (Shell) context.getBean(ContextKey.SHELL);
-			shell.run();
+			ProjectManager.runFromLauncher(script);
 		} catch (Exception e) {
 			e.printStackTrace();
 			InputStreamReader inp = new InputStreamReader(System.in);
@@ -49,6 +41,18 @@ public final class Launcher {
 			}
 		}
 
+	}
+
+	/**
+	 * To get the ynot script of the console.
+	 * 
+	 * @return the ynot script of the console.
+	 */
+	private static String getConsoleScript() {
+		String sep = FileManager.FILE_SEPARATOR;
+		String script = VirtualMachine.getBasePath() + sep + "tools" + sep
+				+ "console.ynot";
+		return script;
 	}
 
 	/**

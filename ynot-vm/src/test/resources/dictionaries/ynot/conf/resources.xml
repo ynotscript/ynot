@@ -10,8 +10,12 @@
 	<bean id="system" class="ynot.lang.System" />
 
 	<bean id="structure" class="ynot.lang.Structure" />
-	
+
 	<bean id="fileManager" class="ynot.util.io.FileManager" />
+
+	<bean id="projectManager" class="ynot.lang.ProjectManager">
+		<property name="fileManager" ref="fileManager" />
+	</bean>
 
 	<bean id="builder" class="ynot.lang.Builder">
 		<property name="loadedPackages">
@@ -21,6 +25,11 @@
 				<value>java.io</value>
 				<value>java.math</value>
 				<value>javax.swing</value>
+				<value>ynot.util</value>
+				<value>ynot.core</value>
+				<value>ynot.impl</value>
+				<value>ynot.lang</value>
+				<value>ynot.vm</value>
 			</list>
 		</property>
 	</bean>

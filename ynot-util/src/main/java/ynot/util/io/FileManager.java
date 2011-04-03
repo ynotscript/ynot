@@ -350,7 +350,7 @@ public class FileManager {
 			dir = getCurrentDirectory();
 		}
 		List<File> listOfFiles = getChildren(dir, pattern);
-		if (listOfFiles.isEmpty() && !pattern.isEmpty()) {
+		if (listOfFiles.isEmpty() && pattern != null && !pattern.isEmpty()) {
 			listOfFiles = getChildren(dir, pattern + ".*");
 		}
 		if (display) {

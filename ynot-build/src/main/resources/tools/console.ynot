@@ -1,5 +1,5 @@
 import("ynot.impl.provider.request")
-import("ynot.vm")
+
 $INTEGER := static("Integer")
 $ARRAYS := static("Arrays")
 

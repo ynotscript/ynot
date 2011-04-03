@@ -1,8 +1,9 @@
-package ynot.vm;
+package ynot.lang;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,6 +14,9 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import ynot.core.entity.Shell;
+import ynot.core.exception.provider.UnprovidableCommandException;
+import ynot.core.exception.provider.UnprovidableResourceException;
 import ynot.core.provider.request.RequestProvider;
 import ynot.impl.provider.command.SimpleCommandProvider;
 import ynot.impl.provider.request.ScriptRequestProvider;
@@ -68,6 +72,35 @@ public class VirtualMachine {
 	public VirtualMachine(final Properties newConfig) {
 		config = newConfig;
 	}
+	
+	/**
+	 * To run a ynot script.
+	 * 
+	 * @param script
+	 *            the concerned script.
+	 * @throws IOException
+	 *             if there is problem.
+	 * @throws UnprovidableCommandException
+	 *             if there is problem.
+	 * @throws UnprovidableResourceException
+	 *             if there is problem.
+	 * @throws CloneNotSupportedException
+	 *             if there is problem.
+	 * @throws IllegalAccessException
+	 *             if there is problem.
+	 * @throws InvocationTargetException
+	 *             if there is problem.
+	 */
+	public static void run(final String script) throws IOException,
+			UnprovidableCommandException, UnprovidableResourceException,
+			CloneNotSupportedException, IllegalAccessException,
+			InvocationTargetException {
+		VirtualMachine vm;
+		vm = new VirtualMachine();
+		ApplicationContext context = vm.getContext(script);
+		Shell shell = (Shell) context.getBean(ContextKey.SHELL);
+		shell.run();
+	}
 
 	/**
 	 * To get a Shell to execute a script.
@@ -78,7 +111,8 @@ public class VirtualMachine {
 	 * @throws IOException
 	 *             if the script or shell file doesn't exist.
 	 */
-	public final ApplicationContext getContext(final String script) throws IOException {
+	public final ApplicationContext getContext(final String script)
+			throws IOException {
 		addScriptPathInConfiguration(config, script);
 		addScriptPathInClassLoaderPath(config);
 		ApplicationContext context = getContext();
@@ -97,8 +131,8 @@ public class VirtualMachine {
 	 * @throws IOException
 	 *             if the shell file doesn't exist.
 	 */
-	public final ApplicationContext getContext(final RequestProvider<String> reqProvider)
-			throws IOException {
+	public final ApplicationContext getContext(
+			final RequestProvider<String> reqProvider) throws IOException {
 		ApplicationContext context = getContext();
 		SimpleCommandProvider cmdProvider = (SimpleCommandProvider) context
 				.getBean("commandProvider");
@@ -132,7 +166,7 @@ public class VirtualMachine {
 	 */
 	private static Properties loadConfiguration(final String propertiesFile)
 			throws IOException {
-		InputStream stream = Launcher.class.getClassLoader()
+		InputStream stream = VirtualMachine.class.getClassLoader()
 				.getResourceAsStream(propertiesFile);
 		Properties properties = new Properties();
 		try {
@@ -150,9 +184,15 @@ public class VirtualMachine {
 	 */
 	public static String getBasePath() {
 		String base = null;
-		URL path = Launcher.class.getProtectionDomain().getCodeSource()
-				.getLocation();
-		if (path.toString().endsWith(".jar")) {
+		URL path = null;
+		try {
+			Class<?> launcherClass = Class.forName("ynot.vm.Launcher");
+			path = launcherClass.getProtectionDomain().getCodeSource()
+					.getLocation();
+		} catch (ClassNotFoundException e) {
+			path = null;
+		}
+		if (null != path && path.toString().endsWith(".jar")) {
 			base = path.toString().replace("file:/", "");
 			base = base.substring(0, base.lastIndexOf("/") + 1);
 			if (!base.matches("^[a-zA-Z]:.*$")) {
@@ -162,7 +202,7 @@ public class VirtualMachine {
 				base = base.replaceAll("%20", " ");
 			}
 		} else {
-			base = System.getProperty("user.dir");
+			base = java.lang.System.getProperty("user.dir");
 		}
 		return base;
 	}
@@ -325,7 +365,7 @@ public class VirtualMachine {
 		public static final String SCRIPT_PATH = "scriptPath";
 
 	}
-	
+
 	/**
 	 * CLass to group all the key used in the context.
 	 * 
@@ -338,22 +378,22 @@ public class VirtualMachine {
 		 */
 		private ContextKey() {
 		}
-		
+
 		/**
 		 * the shell.
 		 */
 		public static final String SHELL = "shell";
-		
+
 		/**
 		 * the command provider.
 		 */
 		public static final String COMMAND_PROVIDER = "commandProvider";
-		
+
 		/**
 		 * the request provider.
 		 */
 		public static final String REQUEST_PROVIDER = "requestProvider";
-		
+
 		/**
 		 * the definition provider.
 		 */
@@ -363,7 +403,7 @@ public class VirtualMachine {
 		 * the resource provider.
 		 */
 		public static final String RESOURCE_PROVIDER = "resourceProvider";
-		
+
 		/**
 		 * the request parser.
 		 */
@@ -373,6 +413,6 @@ public class VirtualMachine {
 		 * the definition parser.
 		 */
 		public static final String DEFINITION_PARSER = "definitionParser";
-		
+
 	}
 }
