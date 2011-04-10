@@ -3,20 +3,35 @@
   \  /    / /_/ // /   
   /_/_/|_/\____//_/
 
-Thank you for downloading Ynot.
-I hope you will enjoy to use it.
+Copyright (C) 2011 Eric Quesada
 
--> Eric Quesada.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-**License:
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-The Ynot code is protected by the GNU General Public License v3.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-Nobody should be restricted by the software they use. 
-There are four freedoms that every user should have:
-  - the freedom to use the software for any purpose
-  - the freedom to change the software to suit your needs
-  - the freedom to share the software with your friends and neighbors          
-  - the freedom to share the changes you make
 
-The idea: make it better and share it with everybody.
+**Build:
+
+cd 
+mkdir git 
+cd git 
+git clone git://github.com/ynotscript/ynot.git
+cd ynot
+mvn package 
+
+**Install & Test:
+
+cd 
+mv git/ynot/ynot-build/target/ynot-xxx.zip . 
+unzip ynot-xxx.zip 
+cd ynot 
+java -jar ynot-vm-xxx.jar ./examples/simpleTest.ynot
