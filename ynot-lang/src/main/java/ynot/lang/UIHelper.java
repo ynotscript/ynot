@@ -1,21 +1,26 @@
 package ynot.lang;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.log4j.Logger;
 
 /**
- * Class to help to build a swing interface from an xml.
+ * Class to help to build a swing interface from an XML file.
+ * 
  * @author equesada
  */
 public final class UIHelper {
 
-	// Member(s)
+	/**
+	 * Opacity to use for the splash screens.
+	 */
+	private static final float SPLASH_SCREEN_OPACITY = 0.90f;
 
 	/**
 	 * The logger.
 	 */
 	private static Logger logger = Logger.getLogger(UIHelper.class);
-
-	// Constructor(s)
 
 	/**
 	 * The default constructor.
@@ -23,13 +28,11 @@ public final class UIHelper {
 	public UIHelper() {
 	}
 
-	// Getter(s)/Setter(s)
-
-	// Other functions
-
 	/**
 	 * To load a view.
-	 * @param filename view filename.
+	 * 
+	 * @param filename
+	 *            view filename.
 	 * @return the corresponding view object.
 	 */
 	public View load(final String filename) {
@@ -45,4 +48,18 @@ public final class UIHelper {
 		}
 		return view;
 	}
+
+	/**
+	 * To build a splash frame.
+	 * 
+	 * @param splashFile
+	 *            the picture to use.
+	 * @return the concerned splash frame.
+	 * @throws IOException
+	 *             if not able to build.
+	 */
+	public static SplashFrame splash(final File splashFile) throws IOException {
+		return new SplashFrame(splashFile, SPLASH_SCREEN_OPACITY);
+	}
+
 }

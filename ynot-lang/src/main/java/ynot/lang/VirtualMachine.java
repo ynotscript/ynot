@@ -24,7 +24,7 @@ import ynot.util.reflect.ClassPathHacker;
 import ynot.util.reflect.DynamicLoader;
 
 /**
- * Instanciate this class to get the Ynot Shell.
+ * Instantiate this class to get the Ynot Shell.
  * 
  * @author ERIC.QUESADA
  * 
@@ -72,7 +72,7 @@ public class VirtualMachine {
 	public VirtualMachine(final Properties newConfig) {
 		config = newConfig;
 	}
-	
+
 	/**
 	 * To run a ynot script.
 	 * 
@@ -95,11 +95,38 @@ public class VirtualMachine {
 			UnprovidableCommandException, UnprovidableResourceException,
 			CloneNotSupportedException, IllegalAccessException,
 			InvocationTargetException {
+		SplashFrame ss = displaySplashScreen(script);
 		VirtualMachine vm;
 		vm = new VirtualMachine();
 		ApplicationContext context = vm.getContext(script);
 		Shell shell = (Shell) context.getBean(ContextKey.SHELL);
+		shell.loadAllCommands();
+		if (null != ss) {
+			ss.dispose();
+		}
 		shell.run();
+	}
+
+	/**
+	 * To display a splash screen if a splash picutire is present.
+	 * 
+	 * @param script
+	 *            the concerned script.
+	 * @return a splashFrame else null.
+	 * @throws IOException
+	 *             if not able to build the splashFrame.
+	 */
+	private static SplashFrame displaySplashScreen(final String script)
+			throws IOException {
+		String splashPath = script.substring(0, script.lastIndexOf('.'))
+				+ ".png";
+		File splashFile = new File(splashPath);
+		if (splashFile.exists()) {
+			SplashFrame sp = UIHelper.splash(splashFile);
+			sp.setVisible(true);
+			return sp;
+		}
+		return null;
 	}
 
 	/**
