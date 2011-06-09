@@ -3,6 +3,9 @@ package ynot.lang;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -21,6 +24,19 @@ public final class UIHelper {
 	 * The logger.
 	 */
 	private static Logger logger = Logger.getLogger(UIHelper.class);
+
+	static {
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("UIManager.getInstalledLookAndFeels()", e);
+		}
+	}
 
 	/**
 	 * The default constructor.

@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -157,8 +158,8 @@ public class View extends JFrame {
 	 */
 	private void linkWithParent(final Component parent, final Component child) {
 		if (parent instanceof Frame) {
-			if (child instanceof JPanel) {
-				((JFrame) parent).setContentPane((JPanel) child);
+			if (child instanceof JPanel || child instanceof JTabbedPane) {
+				((JFrame) parent).setContentPane((Container) child);
 			} else if (child instanceof JMenuBar) {
 				((JFrame) parent).setJMenuBar((JMenuBar) child);
 			}
@@ -222,7 +223,8 @@ public class View extends JFrame {
 			((JMenuBar) component).setLayout(new BoxLayout(
 					((JMenuBar) component), BoxLayout.X_AXIS));
 		} else if (component instanceof Container
-				&& !(component instanceof JMenuItem)) {
+				&& !(component instanceof JMenuItem)
+				&& !(component instanceof JTabbedPane)) {
 			((Container) component).setLayout(new BoxLayout(
 					((Container) component), BoxLayout.Y_AXIS));
 		}
