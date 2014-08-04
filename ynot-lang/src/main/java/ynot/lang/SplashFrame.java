@@ -10,8 +10,6 @@ import java.io.IOException;
 
 import javax.swing.JWindow;
 
-import com.sun.awt.AWTUtilities;
-
 /**
  * To use to display a splash screen.
  * 
@@ -41,8 +39,6 @@ public class SplashFrame extends JWindow {
 	 */
 	public SplashFrame(final File splashFile, final float opacity)
 			throws IOException {
-		AWTUtilities.setWindowOpacity(this, opacity);
-		AWTUtilities.setWindowOpaque(this, false);
 		Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
 		img = Toolkit.getDefaultToolkit().createImage(
 				splashFile.getCanonicalPath());

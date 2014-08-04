@@ -1,0 +1,26 @@
+<settings>
+<servers>
+    <server>
+      <id>sonatype-nexus-snapshots</id>
+      <username>ynotscript</username>
+      <password>G***1</password>
+    </server>
+    <server>
+      <id>sonatype-nexus-staging</id>
+      <username>ynotscript</username>
+      <password>G***1</password>
+    </server>
+  </servers>
+<repositories>
+    <repository>
+        <id>sonatype-oss-releases</id>
+        <name>Sonatype OSS Releases</name>
+        <url>https://oss.sonatype.org/content/repositories/releases</url>
+    </repository>
+    <repository>
+        <id>sonatype-oss-snapshots</id>
+        <name>Sonatype OSS Snapshots</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+</repositories>
+</settings>
