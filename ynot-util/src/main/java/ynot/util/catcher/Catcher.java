@@ -31,6 +31,13 @@ public class Catcher implements Cloneable {
 	private String parserClazz;
 
 	/**
+	 * No-Arg Constructor
+	 */
+	public Catcher() {
+		super();
+	}
+	
+	/**
 	 * Constructor using fields.
 	 * 
 	 * @param newId

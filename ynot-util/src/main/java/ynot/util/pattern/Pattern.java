@@ -45,6 +45,13 @@ public class Pattern implements Cloneable {
 	private String content;
 
 	/**
+	 * No-Arg Constructor.
+	 */
+	public Pattern() {
+		super();
+	}
+	
+	/**
 	 * Constructor using fields.
 	 * @param newId the id of the shortcut.
 	 * @param newContent the content of the pattern.
